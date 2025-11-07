@@ -1520,18 +1520,22 @@ npx http-server<br><br>
                     lastBuildDate: new Date()
                 };
                 
-                this.episodes = data.items.map((item, index) => ({
-                    id: `real-${Date.now()}-${index}`,
-                    title: item.title || `Episodio ${index + 1}`,
-                    description: this.cleanDescription(item.description || item.content || ''),
-                    audioUrl: item.enclosure?.link || item.link || '#',
-                    duration: this.parseDuration(item.itunes?.duration) || this.estimateDuration(),
-                    publishDate: new Date(item.pubDate || Date.now()),
-                    artwork: item.thumbnail || item.itunes?.image || this.podcastInfo.image,
-                    playCount: Math.floor(Math.random() * 500) + 50,
-                    guid: item.guid || item.link,
-                    currentTime: 0
-                }));
+                this.episodes = data.items.map((item, index) => {
+                    // Usar guid como ID para que sea consistente entre recargas
+                    const guid = item.guid || item.link || `episode-${index}`;
+                    return {
+                        id: guid,
+                        title: item.title || `Episodio ${index + 1}`,
+                        description: this.cleanDescription(item.description || item.content || ''),
+                        audioUrl: item.enclosure?.link || item.link || '#',
+                        duration: this.parseDuration(item.itunes?.duration) || this.estimateDuration(),
+                        publishDate: new Date(item.pubDate || Date.now()),
+                        artwork: item.thumbnail || item.itunes?.image || this.podcastInfo.image,
+                        playCount: Math.floor(Math.random() * 500) + 50,
+                        guid: guid,
+                        currentTime: 0
+                    };
+                });
             }
 
             parseXMLData(xmlDoc) {
@@ -1559,8 +1563,13 @@ npx http-server<br><br>
                     
                     const durationStr = item.querySelector('itunes\\:duration')?.textContent;
                     
+                    // Usar guid como ID para que sea consistente entre recargas
+                    const guid = item.querySelector('guid')?.textContent || 
+                                item.querySelector('link')?.textContent || 
+                                `episode-${index}`;
+                    
                     return {
-                        id: `xml-${Date.now()}-${index}`,
+                        id: guid,
                         title: item.querySelector('title')?.textContent || `Episodio ${index + 1}`,
                         description: this.cleanDescription(item.querySelector('description')?.textContent || ''),
                         audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '#',
@@ -1568,7 +1577,7 @@ npx http-server<br><br>
                         publishDate: new Date(item.querySelector('pubDate')?.textContent || Date.now()),
                         artwork: episodeImage,
                         playCount: Math.floor(Math.random() * 500) + 50,
-                        guid: item.querySelector('guid')?.textContent || `guid-${index}`,
+                        guid: guid,
                         currentTime: 0
                     };
                 });
@@ -1890,26 +1899,37 @@ npx http-server<br><br>
         }
 
         function playFromBookmark(episodeId, timePosition) {
+            console.log('🔖 Intentando reproducir desde marcador:', episodeId, 'en', timePosition);
+            console.log('📚 Episodios disponibles:', app.episodes.length);
+            
             const episode = app.episodes.find(e => e.id === episodeId);
-            if (episode) {
-                episode.currentTime = timePosition;
-                app.currentEpisode = episode;
-                app.isPlaying = true;
-                app.trackPlay(episode.id, episode.title);
-                
-                showPlayerContent(episode);
-                showSection('player');
-                
-                setTimeout(() => {
-                    const audioPlayer = document.getElementById('audioPlayer');
-                    if (audioPlayer) {
-                        audioPlayer.currentTime = timePosition;
-                        audioPlayer.play();
-                    }
-                }, 100);
-                
-                app.showNotification(`Continuando desde ${app.formatTime(timePosition)}`);
+            
+            if (!episode) {
+                console.error('❌ Episodio no encontrado:', episodeId);
+                app.showNotification('Episodio no encontrado. Intenta cargar el RSS primero.', 'error');
+                return;
             }
+            
+            console.log('✅ Episodio encontrado:', episode.title);
+            
+            episode.currentTime = timePosition;
+            app.currentEpisode = episode;
+            app.isPlaying = true;
+            app.trackPlay(episode.id, episode.title);
+            
+            showPlayerContent(episode);
+            showSection('player');
+            
+            setTimeout(() => {
+                const audioPlayer = document.getElementById('audioPlayer');
+                if (audioPlayer) {
+                    audioPlayer.currentTime = timePosition;
+                    audioPlayer.play();
+                    console.log('▶️ Reproduciendo desde:', app.formatTime(timePosition));
+                }
+            }, 100);
+            
+            app.showNotification(`Continuando desde ${app.formatTime(timePosition)}`);
         }
 
         function showPlayerContent(episode) {
