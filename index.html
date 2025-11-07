@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎧 Espíritu Stoico</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         :root {
             /* Modo Noche (por defecto) */
@@ -1748,11 +1749,19 @@ npx http-server<br><br>
             }
 
             formatDate(date) {
+                // Convertir a Date si es string
+                const dateObj = date instanceof Date ? date : new Date(date);
+                
+                // Verificar si la fecha es válida
+                if (isNaN(dateObj.getTime())) {
+                    return 'Fecha no disponible';
+                }
+                
                 return new Intl.DateTimeFormat('es-ES', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric'
-                }).format(date);
+                }).format(dateObj);
             }
 
             showNotification(message, type = 'info') {
@@ -1771,7 +1780,18 @@ npx http-server<br><br>
         }
 
         // Initialize the app
-        const app = new PodcastApp();
+        let app;
+        try {
+            app = new PodcastApp();
+        } catch (error) {
+            console.error('❌ Error al inicializar la aplicación:', error);
+            // Crear objeto app básico para evitar errores
+            app = {
+                tryLoadRealData: function() {
+                    location.reload();
+                }
+            };
+        }
         
         // Cargar banners y redes sociales al iniciar
         document.addEventListener('DOMContentLoaded', function() {
