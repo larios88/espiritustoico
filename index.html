@@ -1102,6 +1102,8 @@ npx http-server<br><br>
                 this.isPlaying = false;
                 // Cargar bookmarks desde localStorage
                 this.bookmarks = JSON.parse(localStorage.getItem('podcast_bookmarks') || '[]');
+                // Limpiar marcadores con IDs antiguos (formato: real-* o xml-*)
+                this.cleanOldBookmarks();
                 this.isAdmin = false;
                 this.currentPage = 0;
                 this.episodesPerPage = 5;
@@ -1115,6 +1117,31 @@ npx http-server<br><br>
                 this.dataLoaded = false;
                 
                 this.init();
+            }
+
+            cleanOldBookmarks() {
+                // Detectar y eliminar marcadores con IDs antiguos (real-* o xml-*)
+                const oldBookmarks = this.bookmarks.filter(b => 
+                    b.episodeId.startsWith('real-') || 
+                    b.episodeId.startsWith('xml-') ||
+                    b.episodeId.startsWith('sample-')
+                );
+                
+                if (oldBookmarks.length > 0) {
+                    console.log(`🧹 Limpiando ${oldBookmarks.length} marcadores con IDs antiguos`);
+                    this.bookmarks = this.bookmarks.filter(b => 
+                        !b.episodeId.startsWith('real-') && 
+                        !b.episodeId.startsWith('xml-') &&
+                        !b.episodeId.startsWith('sample-')
+                    );
+                    localStorage.setItem('podcast_bookmarks', JSON.stringify(this.bookmarks));
+                    
+                    if (oldBookmarks.length > 0) {
+                        setTimeout(() => {
+                            this.showNotification(`Se eliminaron ${oldBookmarks.length} marcadores antiguos incompatibles. Por favor, crea nuevos marcadores.`, 'error');
+                        }, 2000);
+                    }
+                }
             }
 
             init() {
@@ -1895,6 +1922,16 @@ npx http-server<br><br>
                 app.showNotification(`Reproduciendo: ${episode.title}`);
                 showPlayerContent(episode);
                 showSection('player');
+                
+                // Iniciar reproducción automáticamente
+                setTimeout(() => {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    if (audioPlayer) {
+                        audioPlayer.play().catch(err => {
+                            console.log('⚠️ Reproducción automática bloqueada por el navegador');
+                        });
+                    }
+                }, 100);
             }
         }
 
@@ -1906,7 +1943,10 @@ npx http-server<br><br>
             
             if (!episode) {
                 console.error('❌ Episodio no encontrado:', episodeId);
-                app.showNotification('Episodio no encontrado. Intenta cargar el RSS primero.', 'error');
+                console.log('🔍 IDs de episodios disponibles (primeros 5):', 
+                    app.episodes.slice(0, 5).map(e => ({ id: e.id, title: e.title }))
+                );
+                app.showNotification('Marcador incompatible. Por favor, crea un nuevo marcador.', 'error');
                 return;
             }
             
