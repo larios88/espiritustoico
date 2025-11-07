@@ -1099,7 +1099,8 @@ npx http-server<br><br>
                 this.filteredEpisodes = [];
                 this.currentEpisode = null;
                 this.isPlaying = false;
-                this.bookmarks = [];
+                // Cargar bookmarks desde localStorage
+                this.bookmarks = JSON.parse(localStorage.getItem('podcast_bookmarks') || '[]');
                 this.isAdmin = false;
                 this.currentPage = 0;
                 this.episodesPerPage = 5;
@@ -1399,6 +1400,7 @@ npx http-server<br><br>
             }
 
             loadSampleData() {
+                // Solo cargar info básica del podcast, sin episodios de ejemplo
                 this.podcastInfo = {
                     title: 'Mi Podcast Personal',
                     description: 'Contenido auténtico y conversaciones interesantes desde Anchor.fm',
@@ -1407,58 +1409,9 @@ npx http-server<br><br>
                     lastBuildDate: new Date()
                 };
 
-                const sampleEpisodes = [
-                    {
-                        title: 'Episodio Inaugural - Bienvenidos al Podcast',
-                        description: 'En este primer episodio te doy la bienvenida y te cuento qué puedes esperar de este podcast. Hablamos sobre los temas que vamos a tratar y la frecuencia de publicación.',
-                        date: '2024-01-15'
-                    },
-                    {
-                        title: 'Reflexiones sobre el Crecimiento Personal',
-                        description: 'Una conversación profunda sobre el desarrollo personal, los hábitos que nos ayudan a crecer y cómo superar los obstáculos que encontramos en el camino.',
-                        date: '2024-01-08'
-                    },
-                    {
-                        title: 'Entrevista Especial - Historias de Éxito',
-                        description: 'Entrevisto a una persona inspiradora que ha logrado grandes cosas en su campo. Compartimos sus secretos, fracasos y aprendizajes más valiosos.',
-                        date: '2024-01-01'
-                    },
-                    {
-                        title: 'Análisis de Tendencias Actuales',
-                        description: 'Exploramos las tendencias más importantes del momento y cómo pueden afectar nuestro futuro. Una mirada crítica y constructiva a los cambios sociales.',
-                        date: '2023-12-25'
-                    },
-                    {
-                        title: 'Consejos Prácticos para el Día a Día',
-                        description: 'Tips y estrategias que puedes implementar inmediatamente para mejorar tu productividad, bienestar y relaciones interpersonales.',
-                        date: '2023-12-18'
-                    },
-                    {
-                        title: 'El Arte de la Comunicación Efectiva',
-                        description: 'Técnicas y estrategias para mejorar tus habilidades de comunicación tanto en el ámbito personal como profesional.',
-                        date: '2023-12-11'
-                    },
-                    {
-                        title: 'Mindfulness y Bienestar Mental',
-                        description: 'Exploramos prácticas de mindfulness y su impacto en nuestro bienestar mental y emocional.',
-                        date: '2023-12-04'
-                    }
-                ];
-
-                this.episodes = sampleEpisodes.map((ep, index) => ({
-                    id: `sample-${index}`,
-                    title: ep.title,
-                    description: ep.description,
-                    audioUrl: '#',
-                    duration: Math.floor(Math.random() * (3600 - 1200) + 1200),
-                    publishDate: new Date(ep.date),
-                    artwork: `https://picsum.photos/300/300?random=ep${index}`,
-                    playCount: Math.floor(Math.random() * 500) + 100,
-                    guid: `sample-guid-${index}`,
-                    currentTime: 0
-                }));
-
-                this.filteredEpisodes = [...this.episodes];
+                // NO cargar episodios de ejemplo
+                this.episodes = [];
+                this.filteredEpisodes = [];
                 this.updateUI();
             }
 
@@ -2165,6 +2118,8 @@ npx http-server<br><br>
             };
             
             app.bookmarks.push(bookmark);
+            // Guardar en localStorage
+            localStorage.setItem('podcast_bookmarks', JSON.stringify(app.bookmarks));
             app.updateBookmarks();
             app.showNotification(app.t('notifications.bookmark_added'));
         }
@@ -2188,12 +2143,16 @@ npx http-server<br><br>
             };
             
             app.bookmarks.push(bookmark);
+            // Guardar en localStorage
+            localStorage.setItem('podcast_bookmarks', JSON.stringify(app.bookmarks));
             app.updateBookmarks();
             app.showNotification(`Marcador añadido en ${app.formatTime(actualTime)}`);
         }
 
         function removeBookmark(bookmarkId) {
             app.bookmarks = app.bookmarks.filter(b => b.id !== bookmarkId);
+            // Guardar en localStorage
+            localStorage.setItem('podcast_bookmarks', JSON.stringify(app.bookmarks));
             app.updateBookmarks();
             app.showNotification(app.t('notifications.bookmark_deleted'));
         }
