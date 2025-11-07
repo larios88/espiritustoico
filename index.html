@@ -1,0 +1,3029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎧 Espíritu Stoico</title>
+    <style>
+        :root {
+            /* Modo Noche (por defecto) */
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #9f8069;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --accent: #9f8069;
+            --accent-hover: #b8957a;
+            --border: #3a3a3a;
+            --success: #4caf50;
+            --error: #f44336;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --header-height: 120px;
+        }
+
+        /* Modo Día */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #8b4513;
+            --text-secondary: #212529;
+            --text-muted: #6c757d;
+            --accent: #8b4513;
+            --accent-hover: #a0522d;
+            --border: #dee2e6;
+            --success: #28a745;
+            --error: #dc3545;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background-color: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent);
+            padding: 2rem 2rem 1.5rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow);
+            min-height: 110px;
+            height: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .podcast-header {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .podcast-artwork {
+            width: clamp(50px, 8vw, 70px);
+            height: clamp(50px, 8vw, 70px);
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            flex-shrink: 0;
+        }
+
+        .podcast-details {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .podcast-details h1 {
+            color: var(--accent);
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+
+        .podcast-description {
+            color: var(--text-secondary);
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            max-width: 100%;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .header-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .header-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: scale(1.1);
+        }
+
+        .main-container {
+            position: relative;
+            min-height: calc(100vh - 170px - 60px);
+            padding-top: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-right: 1px solid var(--border);
+            height: calc(100vh - 170px - 60px);
+            position: fixed;
+            top: 170px;
+            left: 170px;
+            overflow-y: auto;
+            z-index: 85;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-tertiary);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: var(--accent);
+            color: var(--bg-primary);
+            box-shadow: 0 4px 15px rgba(159, 128, 105, 0.3);
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .content {
+            margin-left: 420px;
+            margin-right: 170px;
+            margin-top: 170px;
+            padding: 2rem;
+            padding-bottom: 80px;
+            overflow-y: auto;
+            min-height: calc(100vh - 170px - 60px);
+            position: relative;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(159, 128, 105, 0.2);
+        }
+
+        .episode-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .episode-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--shadow);
+            border-left-color: var(--accent-hover);
+        }
+
+        .episode-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .episode-artwork {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+        }
+
+        .episode-info {
+            flex: 1;
+        }
+
+        .episode-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .episode-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .episode-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .episode-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(159, 128, 105, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pagination-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn:disabled:hover {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 25px var(--shadow);
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px var(--shadow);
+        }
+
+        .modal-content h3 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Tablets y pantallas medianas */
+        @media (max-width: 1024px) {
+            .header {
+                padding: 1rem 1.5rem;
+            }
+            .podcast-header {
+                gap: 1rem;
+                min-width: 250px;
+            }
+            .podcast-description {
+                -webkit-line-clamp: 1;
+            }
+            .sidebar {
+                width: 220px;
+                left: 130px;
+                padding: 1.25rem;
+            }
+            .nav-item {
+                padding: 0.9rem 1rem;
+                font-size: 0.95rem;
+            }
+            .content {
+                margin-left: 350px;
+                margin-right: 130px;
+            }
+        }
+
+        /* Móviles */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem 1rem;
+                min-height: 100px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            
+            .podcast-header {
+                flex-direction: row;
+                justify-content: flex-start;
+                text-align: left;
+                min-height: auto;
+                min-width: auto;
+                gap: 1rem;
+            }
+            
+            .podcast-artwork {
+                width: clamp(45px, 12vw, 60px);
+                height: clamp(45px, 12vw, 60px);
+            }
+            
+            .podcast-details h1 {
+                font-size: clamp(0.9rem, 5vw, 1.1rem);
+                margin-bottom: 0.1rem;
+            }
+            
+            .podcast-description {
+                font-size: clamp(0.7rem, 3.5vw, 0.8rem);
+                -webkit-line-clamp: 1;
+            }
+            
+            .header-controls {
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+            
+            .header-btn {
+                padding: 0.6rem;
+                font-size: 1rem;
+            }
+            
+            .sidebar { 
+                position: fixed;
+                top: 100px;
+                left: 0;
+                width: 100%; 
+                height: 60px;
+                padding: 0.5rem 1rem;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                overflow-x: auto;
+                gap: 0.75rem;
+                z-index: 49;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                margin-bottom: 0;
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+                justify-content: center;
+            }
+            
+            .content {
+                margin-left: 0;
+                margin-right: 0;
+                margin-top: 60px;
+                max-height: calc(100vh - 160px);
+                padding: 1.5rem;
+            }
+        }
+
+        /* Móviles pequeños */
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.5rem 0.75rem;
+                min-height: 90px;
+            }
+            
+            .podcast-header {
+                gap: 0.75rem;
+            }
+            
+            .podcast-artwork {
+                width: clamp(40px, 15vw, 50px);
+                height: clamp(40px, 15vw, 50px);
+            }
+            
+            .podcast-details h1 {
+                font-size: clamp(0.8rem, 6vw, 1rem);
+            }
+            
+            .podcast-description {
+                font-size: clamp(0.65rem, 4vw, 0.75rem);
+            }
+            
+            .header-btn {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .sidebar {
+                top: 90px;
+                height: 55px;
+                padding: 0.25rem 0.5rem;
+                gap: 0.5rem;
+            }
+            
+            .nav-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+                gap: 0.5rem;
+            }
+            
+            .nav-icon {
+                font-size: 1.1rem;
+                width: 20px;
+            }
+            
+            .content {
+                max-height: calc(100vh - 145px);
+                padding: 1rem;
+            }
+        }
+
+        /* Pantallas muy grandes */
+        @media (min-width: 1400px) {
+            .header {
+                padding: 1.5rem 3rem;
+            }
+            
+            .podcast-header {
+                gap: 2rem;
+            }
+            
+            .podcast-artwork {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .podcast-details h1 {
+                font-size: 1.5rem;
+            }
+            
+            .podcast-description {
+                font-size: 0.95rem;
+                -webkit-line-clamp: 3;
+            }
+        }
+
+        /* Estilos para Banners Publicitarios */
+        .ad-banner {
+            text-align: center;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ad-banner img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .ad-banner a {
+            display: block;
+        }
+        
+        .ad-banner.empty {
+            background: transparent;
+            border: none;
+        }
+        
+        /* Banner Superior - Siempre visible con espacio reservado */
+        .ad-banner-top {
+            width: 100%;
+            min-height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 5px;
+            position: fixed;
+            top: 110px;
+            left: 0;
+            right: 0;
+            z-index: 95;
+        }
+        
+        /* Banner Inferior - Siempre visible con espacio reservado */
+        .ad-banner-bottom {
+            width: 100%;
+            min-height: 60px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 5px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 95;
+        }
+        
+        /* Banners Laterales - Siempre visibles con espacio reservado */
+        .ad-banner-left,
+        .ad-banner-right {
+            position: fixed;
+            width: 170px;
+            min-height: 600px;
+            background: var(--bg-secondary);
+            padding: 5px;
+            top: 170px;
+            bottom: 60px;
+            z-index: 80;
+            display: none;
+        }
+        
+        .ad-banner-left {
+            left: 0;
+            border-right: 1px solid var(--border);
+        }
+        
+        .ad-banner-right {
+            right: 0;
+            border-left: 1px solid var(--border);
+        }
+        
+        /* Ajustar el main-container para dejar espacio a los banners laterales */
+        body {
+            padding-bottom: 60px; /* Espacio para banner inferior */
+        }
+        
+        /* Estilos para Redes Sociales en Header */
+        .social-links-container {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-left: 1rem;
+        }
+        
+        .social-link {
+            display: inline-block;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .social-link:hover {
+            transform: scale(1.15);
+            opacity: 0.8;
+        }
+        
+        .social-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+        }
+        
+        @media (max-width: 768px) {
+            .social-links-container {
+                gap: 0.5rem;
+                margin-left: 0.5rem;
+            }
+            
+            .social-icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        /* Responsive para banners */
+        @media (max-width: 768px) {
+            /* En móvil, solo banners superior e inferior */
+            .ad-banner-left,
+            .ad-banner-right {
+                display: none !important;
+            }
+            
+            .ad-banner-top {
+                min-height: 60px;
+            }
+            
+            .ad-banner-bottom {
+                min-height: 60px;
+            }
+            
+            .ad-banner-top img,
+            .ad-banner-bottom img {
+                max-width: 320px;
+                max-height: 50px;
+            }
+            
+            .sidebar {
+                left: 0;
+            }
+            
+            .content {
+                margin-left: 250px;
+            }
+            
+            .main-container {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            /* En tablet */
+            .ad-banner-top {
+                min-height: 100px;
+            }
+            
+            .ad-banner-bottom {
+                min-height: 100px;
+            }
+            
+            .ad-banner-top img,
+            .ad-banner-bottom img {
+                max-width: 728px;
+                max-height: 90px;
+            }
+            
+            .ad-banner-left,
+            .ad-banner-right {
+                display: flex;
+                width: 130px;
+            }
+            
+            .ad-banner-left img,
+            .ad-banner-right img {
+                max-width: 120px;
+                max-height: 600px;
+            }
+            
+            .sidebar {
+                left: 130px;
+            }
+            
+            .content {
+                margin-left: 380px;
+            }
+            
+            .main-container {
+                margin-left: 130px;
+                margin-right: 130px;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            /* En escritorio */
+            .ad-banner-top {
+                min-height: 100px;
+            }
+            
+            .ad-banner-bottom {
+                min-height: 100px;
+            }
+            
+            .ad-banner-top img,
+            .ad-banner-bottom img {
+                max-width: 728px;
+                max-height: 90px;
+            }
+            
+            .ad-banner-left,
+            .ad-banner-right {
+                display: flex;
+                width: 170px;
+            }
+            
+            .ad-banner-left img,
+            .ad-banner-right img {
+                max-width: 160px;
+                max-height: 600px;
+            }
+            
+            .main-container {
+                margin-left: 170px;
+                margin-right: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="podcast-header" id="podcastHeader">
+                <!-- Podcast info will be loaded here -->
+            </div>
+            <div class="header-controls">
+                <!-- Redes sociales - siempre visibles -->
+                <div id="socialLinksContainer" class="social-links-container"></div>
+                <!-- Botón admin - solo visible cuando está habilitado -->
+                <div style="display: none;" id="adminControls">
+                    <button class="header-btn" onclick="showAdminLogin()" title="Panel de administrador">🔐</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <nav class="sidebar">
+            <div class="nav-item active" onclick="showSection('home')" data-section="home">
+                <span class="nav-icon">🏠</span>
+                <span id="nav-home">Inicio</span>
+            </div>
+            <div class="nav-item" onclick="showSection('player')" data-section="player">
+                <span class="nav-icon">▶️</span>
+                <span id="nav-player">Reproductor</span>
+            </div>
+            <div class="nav-item" onclick="showSection('bookmarks')" data-section="bookmarks">
+                <span class="nav-icon">🔖</span>
+                <span id="nav-bookmarks">Marcadores</span>
+            </div>
+            <div class="nav-item" onclick="toggleTheme()" id="theme-toggle-nav">
+                <span class="nav-icon" id="theme-icon">🌞</span>
+                <span id="theme-text">Modo Día</span>
+            </div>
+        </nav>
+
+        <main class="content">
+            <!-- HOME SECTION -->
+            <div id="home" class="section active">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Buscador" oninput="performSearch(this.value)">
+                </div>
+                
+                <div class="episode-list" id="episodeList">
+                    <!-- Episodes will be loaded here -->
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
+
+            <!-- PLAYER SECTION -->
+            <div id="player" class="section">
+                <div id="playerContent">
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <h2 data-i18n="player.title">🎧 Reproductor</h2>
+                        <p data-i18n="player.select">Selecciona un episodio para comenzar a escuchar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOOKMARKS SECTION -->
+            <div id="bookmarks" class="section">
+                <div id="bookmarksContent">
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <h2 data-i18n="bookmarks.title">🔖 Marcadores</h2>
+                        <p data-i18n="bookmarks.empty">No tienes marcadores guardados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETUP SECTION -->
+            <div id="setup" class="section">
+                <h2 data-i18n="settings.title">⚙️ Configuración</h2>
+                
+                <!-- Tema -->
+                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 16px; margin: 2rem 0; border-left: 4px solid var(--accent);">
+                    <h4 data-i18n="settings.theme.title">🌙 Tema de la Aplicación</h4>
+                    <p data-i18n="settings.theme.description">Cambia entre modo día y noche para una mejor experiencia visual</p>
+                    <div style="margin: 1rem 0;">
+                        <button class="btn" onclick="toggleTheme()" id="themeToggleBtn">
+                            <span data-i18n="settings.theme.switch">🌞 Cambiar a Modo Día</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Datos RSS (Solo para Admin) -->
+                <div id="rssConfigSection" style="background: var(--bg-secondary); padding: 2rem; border-radius: 16px; margin: 2rem 0; border-left: 4px solid var(--accent); display: none;">
+                    <h4 data-i18n="settings.rss.title">🌐 Configuración RSS (Solo Administrador)</h4>
+                    <p data-i18n="settings.rss.description">Ejecuta estos comandos en la carpeta donde está el archivo HTML:</p>
+                    <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--text-secondary); margin: 1rem 0; overflow-x: auto;">
+# Python 3<br>
+python -m http.server 8000<br><br>
+# Node.js (si tienes npx)<br>
+npx http-server<br><br>
+# Luego abre: http://localhost:8000
+                    </div>
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <button class="btn" onclick="tryLoadRealData()">
+                            <span data-i18n="settings.rss.reload">🔄 Probar Carga de Datos Reales</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información de Almacenamiento -->
+                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 16px; margin: 2rem 0; border-left: 4px solid var(--success);">
+                    <h4 data-i18n="settings.storage.title">💾 Almacenamiento Local</h4>
+                    <p data-i18n="settings.storage.description">Tus marcadores y progreso se guardan automáticamente en tu dispositivo. No necesitas registrarte ni crear una cuenta.</p>
+                    <div style="margin: 1rem 0; font-size: 0.9rem; color: var(--text-muted);">
+                        <p>✅ <span data-i18n="settings.storage.private">Privacidad total - solo tú puedes ver tus datos</span></p>
+                        <p>✅ <span data-i18n="settings.storage.offline">Funciona sin conexión a internet</span></p>
+                        <p>✅ <span data-i18n="settings.storage.persistent">Se mantiene entre sesiones del navegador</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Traducciones
+        console.log('🔧 Cargando traducciones en español...');
+        const translations = {
+            es: {
+                'nav.home': 'Inicio',
+                'nav.player': 'Reproductor',
+                'nav.bookmarks': 'Marcadores',
+                'nav.settings': 'Configuración',
+                'search.placeholder': 'Buscador',
+                'player.title': '🎧 Reproductor',
+                'player.select': 'Selecciona un episodio para comenzar a escuchar',
+                'bookmarks.title': '',
+                'bookmarks.empty': 'No tienes marcadores guardados',
+                'bookmarks.empty.desc': 'Añade marcadores mientras escuchas episodios',
+                'episode.play': 'Reproducir',
+                'episode.bookmark': 'Guardar en Marcadores',
+                'episode.continue': '▶️ Continuar desde aquí',
+                'episode.delete': 'Borrar',
+                'episode.share': 'Compartir',
+                'episode.mark_time': 'Marcador de Audio',
+                'pagination.previous': '← Anterior',
+                'pagination.next': 'Siguiente →',
+                'pagination.page': 'Página',
+                'pagination.of': 'de',
+                'settings.title': '⚙️ Configuración',
+                'settings.theme.title': '🌙 Tema de la Aplicación',
+                'settings.theme.description': 'Cambia entre modo día y noche para una mejor experiencia visual',
+                'settings.theme.switch': '🌞 Cambiar a Modo Día',
+                'settings.theme.switch.night': '🌙 Cambiar a Modo Noche',
+                'settings.language.title': '🌍 Idioma',
+                'settings.language.description': 'Selecciona tu idioma preferido',
+                'settings.storage.title': '💾 Almacenamiento Local',
+                'settings.storage.description': 'Tus marcadores y progreso se guardan automáticamente en tu dispositivo. No necesitas registrarte ni crear una cuenta.',
+                'settings.storage.private': 'Privacidad total - solo tú puedes ver tus datos',
+                'settings.storage.offline': 'Funciona sin conexión a internet',
+                'settings.storage.persistent': 'Se mantiene entre sesiones del navegador',
+                'settings.rss.title': '🌐 Configuración RSS (Solo Administrador)',
+                'settings.rss.description': 'Ejecuta estos comandos en la carpeta donde está el archivo HTML:',
+                'settings.rss.reload': '🔄 Probar Carga de Datos Reales',
+                'admin.title': '🔐 Panel de Administrador',
+                'admin.login': '🔐 Acceso de Administrador',
+                'admin.login.desc': 'Panel de administración para gestión avanzada',
+                'admin.login.button': 'Iniciar Sesión',
+                'admin.cancel': 'Cancelar',
+                'admin.close': '🚪 Cerrar',
+                'admin.config': '⚙️ Ver Configuración',
+                'notifications.playing': 'Reproduciendo',
+                'notifications.paused': 'Pausado',
+                'notifications.bookmark_added': 'Marcador añadido',
+                'notifications.bookmark_deleted': 'Marcador eliminado',
+                'notifications.link_copied': 'Enlace copiado al portapapeles',
+                'notifications.loading_rss': 'Intentando cargar datos reales del RSS...',
+                'notifications.rss_success': '¡Datos reales cargados exitosamente!',
+                'notifications.rss_error': 'No se pudieron cargar datos reales. Usando datos de ejemplo.',
+                'notifications.invalid_credentials': 'Credenciales incorrectas',
+                'notifications.admin_activated': 'Modo administrador activado',
+                'time.current': 'Tiempo actual',
+                'time.added': 'Añadido'
+            }
+        };
+        console.log('✅ Traducciones cargadas:', translations.es ? 'OK' : 'ERROR');
+        console.log('📝 Ejemplo:', translations.es['episode.play'], translations.es['episode.bookmark']);
+
+        // Podcast Player Final
+        class PodcastApp {
+            constructor() {
+                this.episodes = [];
+                this.filteredEpisodes = [];
+                this.currentEpisode = null;
+                this.isPlaying = false;
+                this.bookmarks = [];
+                this.isAdmin = false;
+                this.currentPage = 0;
+                this.episodesPerPage = 5;
+                this.currentLanguage = localStorage.getItem('podcast_language') || 'es';
+                this.currentTheme = localStorage.getItem('podcast_theme') || 'dark';
+                // Sistema de analíticas avanzado
+                this.initAnalytics();
+                
+                this.rssUrl = 'https://anchor.fm/s/10361fcfc/podcast/rss';
+                this.podcastInfo = null;
+                this.dataLoaded = false;
+                
+                this.init();
+            }
+
+            init() {
+                console.log('🎧 Podcast Player initialized');
+                this.applyTheme();
+                this.applyLanguage();
+                this.loadSampleData();
+                // Intentar cargar datos reales al inicio
+                setTimeout(() => {
+                    this.tryLoadRealData();
+                }, 1000);
+                this.setupAutoRefresh();
+                this.setupSecretAccess();
+            }
+
+            initAnalytics() {
+                // Cargar analíticas desde localStorage o crear nuevo objeto
+                const saved = localStorage.getItem('podcast_analytics');
+                this.analytics = saved ? JSON.parse(saved) : {
+                    visits: [],
+                    plays: [],
+                    downloads: [],
+                    bannerClicks: [],
+                    socialClicks: [],
+                    sessions: [],
+                    episodeStats: {},
+                    locations: {},
+                    devices: {}
+                };
+                
+                // Registrar visita actual
+                this.trackVisit();
+                
+                // Registrar inicio de sesión
+                this.sessionStart = Date.now();
+                window.addEventListener('beforeunload', () => this.trackSessionEnd());
+            }
+            
+            trackVisit() {
+                const visit = {
+                    timestamp: Date.now(),
+                    location: this.getLocation(),
+                    device: this.getDeviceInfo(),
+                    referrer: document.referrer || 'Direct'
+                };
+                this.analytics.visits.push(visit);
+                this.saveAnalytics();
+            }
+            
+            trackPlay(episodeId, episodeTitle) {
+                const play = {
+                    timestamp: Date.now(),
+                    episodeId,
+                    episodeTitle,
+                    location: this.getLocation(),
+                    device: this.getDeviceInfo()
+                };
+                this.analytics.plays.push(play);
+                
+                // Actualizar stats por episodio
+                if (!this.analytics.episodeStats[episodeId]) {
+                    this.analytics.episodeStats[episodeId] = {
+                        title: episodeTitle,
+                        plays: 0,
+                        downloads: 0
+                    };
+                }
+                this.analytics.episodeStats[episodeId].plays++;
+                
+                this.saveAnalytics();
+            }
+            
+            trackDownload(episodeId, episodeTitle) {
+                const download = {
+                    timestamp: Date.now(),
+                    episodeId,
+                    episodeTitle,
+                    location: this.getLocation()
+                };
+                this.analytics.downloads.push(download);
+                
+                // Actualizar stats por episodio
+                if (!this.analytics.episodeStats[episodeId]) {
+                    this.analytics.episodeStats[episodeId] = {
+                        title: episodeTitle,
+                        plays: 0,
+                        downloads: 0
+                    };
+                }
+                this.analytics.episodeStats[episodeId].downloads++;
+                
+                this.saveAnalytics();
+            }
+            
+            trackBannerClick(bannerPosition) {
+                const click = {
+                    timestamp: Date.now(),
+                    position: bannerPosition,
+                    location: this.getLocation()
+                };
+                this.analytics.bannerClicks.push(click);
+                this.saveAnalytics();
+            }
+            
+            trackSocialClick(socialNetwork) {
+                const click = {
+                    timestamp: Date.now(),
+                    network: socialNetwork,
+                    location: this.getLocation()
+                };
+                this.analytics.socialClicks.push(click);
+                this.saveAnalytics();
+            }
+            
+            trackSessionEnd() {
+                const duration = Date.now() - this.sessionStart;
+                const session = {
+                    timestamp: this.sessionStart,
+                    duration,
+                    location: this.getLocation(),
+                    device: this.getDeviceInfo()
+                };
+                this.analytics.sessions.push(session);
+                this.saveAnalytics();
+            }
+            
+            getLocation() {
+                // Obtener ubicación aproximada del navegador
+                const lang = navigator.language || navigator.userLanguage;
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                return `${lang} (${timezone})`;
+            }
+            
+            getDeviceInfo() {
+                const ua = navigator.userAgent;
+                let device = 'Desktop';
+                if (/mobile/i.test(ua)) device = 'Mobile';
+                else if (/tablet|ipad/i.test(ua)) device = 'Tablet';
+                
+                let os = 'Unknown';
+                if (/windows/i.test(ua)) os = 'Windows';
+                else if (/mac/i.test(ua)) os = 'MacOS';
+                else if (/linux/i.test(ua)) os = 'Linux';
+                else if (/android/i.test(ua)) os = 'Android';
+                else if (/ios|iphone|ipad/i.test(ua)) os = 'iOS';
+                
+                return `${device} - ${os}`;
+            }
+            
+            saveAnalytics() {
+                localStorage.setItem('podcast_analytics', JSON.stringify(this.analytics));
+            }
+
+            setupAutoRefresh() {
+                // Actualizar automáticamente cada 30 minutos
+                setInterval(() => {
+                    console.log('Auto-refreshing RSS data...');
+                    this.tryLoadRealData();
+                }, 30 * 60 * 1000); // 30 minutos
+            }
+
+            setupSecretAccess() {
+                let keySequence = '';
+                
+                document.addEventListener('keydown', (e) => {
+                    keySequence += e.key.toLowerCase();
+                    
+                    // Obtener código secreto guardado o usar el por defecto
+                    const secretCode = localStorage.getItem('podcast_secret_code') || 'larios';
+                    
+                    // Mantener solo los últimos caracteres necesarios
+                    const maxLength = Math.max(secretCode.length, 10);
+                    if (keySequence.length > maxLength) {
+                        keySequence = keySequence.slice(-maxLength);
+                    }
+                    
+                    // Verificar si se escribió el código secreto
+                    if (keySequence.includes(secretCode)) {
+                        keySequence = '';
+                        this.showAdminControls();
+                    }
+                });
+            }
+
+            showAdminControls() {
+                const adminControls = document.getElementById('adminControls');
+                if (adminControls) {
+                    adminControls.style.display = 'flex';
+                    this.showNotification(this.t('notifications.admin_activated') || 'Modo administrador activado');
+                }
+            }
+
+            applyTheme() {
+                document.documentElement.setAttribute('data-theme', this.currentTheme);
+                this.updateThemeButton();
+            }
+
+            updateThemeButton() {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const span = btn.querySelector('span');
+                    if (this.currentTheme === 'dark') {
+                        span.textContent = '🌞 ' + this.t('settings.theme.switch');
+                    } else {
+                        span.textContent = '🌙 ' + this.t('settings.theme.switch.night');
+                    }
+                }
+            }
+
+            applyLanguage() {
+                // DESHABILITADO - Los textos ya están en español en el HTML
+                // Solo mantener la funcionalidad de mostrar RSS para admin
+                if (this.isAdmin) {
+                    const rssSection = document.getElementById('rssConfigSection');
+                    if (rssSection) {
+                        rssSection.style.display = 'block';
+                    }
+                }
+            }
+
+            t(key) {
+                // Diccionario directo de traducciones en español
+                const textos = {
+                    'nav.home': 'Inicio',
+                    'nav.player': 'Reproductor',
+                    'nav.bookmarks': 'Marcadores',
+                    'nav.settings': 'Configuración',
+                    'search.placeholder': 'Buscador',
+                    'player.title': '🎧 Reproductor',
+                    'player.select': 'Selecciona un episodio para comenzar a escuchar',
+                    'bookmarks.title': '🔖 Marcadores',
+                    'bookmarks.empty': 'No tienes marcadores guardados',
+                    'bookmarks.empty.desc': 'Añade marcadores mientras escuchas episodios',
+                    'episode.play': 'Reproducir',
+                    'episode.bookmark': 'Guardar en Marcadores',
+                    'episode.continue': '▶️ Continuar desde aquí',
+                    'episode.delete': 'Borrar',
+                    'episode.share': 'Compartir',
+                    'episode.mark_time': 'Marcador de Audio',
+                    'episode.download': '📥 Descargar',
+                    'pagination.previous': '← Anterior',
+                    'pagination.next': 'Siguiente →',
+                    'pagination.page': 'Página',
+                    'pagination.of': 'de',
+                    'settings.title': '⚙️ Configuración',
+                    'settings.theme.title': '🌙 Tema de la Aplicación',
+                    'settings.theme.description': 'Cambia entre modo día y noche para una mejor experiencia visual',
+                    'settings.theme.switch': '🌞 Cambiar a Modo Día',
+                    'settings.theme.switch.night': '🌙 Cambiar a Modo Noche',
+                    'settings.language.title': '🌍 Idioma',
+                    'settings.language.description': 'Selecciona tu idioma preferido',
+                    'settings.storage.title': '💾 Almacenamiento Local',
+                    'settings.storage.description': 'Tus marcadores y progreso se guardan automáticamente en tu dispositivo. No necesitas registrarte ni crear una cuenta.',
+                    'settings.storage.private': 'Privacidad total - solo tú puedes ver tus datos',
+                    'settings.storage.offline': 'Funciona sin conexión a internet',
+                    'settings.storage.persistent': 'Se mantiene entre sesiones del navegador',
+                    'settings.rss.title': '🌐 Configuración RSS (Solo Administrador)',
+                    'settings.rss.description': 'Ejecuta estos comandos en la carpeta donde está el archivo HTML:',
+                    'settings.rss.reload': '🔄 Probar Carga de Datos Reales',
+                    'admin.title': '🔐 Panel de Administrador',
+                    'admin.login': '🔐 Acceso de Administrador',
+                    'admin.login.desc': 'Panel de administración para gestión avanzada',
+                    'admin.login.button': 'Iniciar Sesión',
+                    'admin.cancel': 'Cancelar',
+                    'admin.close': '🚪 Cerrar',
+                    'admin.config': '⚙️ Ver Configuración',
+                    'notifications.playing': 'Reproduciendo',
+                    'notifications.paused': 'Pausado',
+                    'notifications.bookmark_added': 'Marcador añadido',
+                    'notifications.bookmark_deleted': 'Marcador eliminado',
+                    'notifications.link_copied': 'Enlace copiado al portapapeles',
+                    'notifications.loading_rss': 'Intentando cargar datos reales del RSS...',
+                    'notifications.rss_success': '¡Datos reales cargados exitosamente!',
+                    'notifications.rss_error': 'No se pudieron cargar datos reales. Usando datos de ejemplo.',
+                    'notifications.invalid_credentials': 'Credenciales incorrectas',
+                    'notifications.admin_activated': 'Modo administrador activado',
+                    'notifications.theme.night': 'noche',
+                    'notifications.theme.day': 'día',
+                    'time.current': 'Tiempo actual',
+                    'time.added': 'Añadido'
+                };
+                
+                return textos[key] || key;
+            }
+
+            loadSampleData() {
+                this.podcastInfo = {
+                    title: 'Mi Podcast Personal',
+                    description: 'Contenido auténtico y conversaciones interesantes desde Anchor.fm',
+                    image: 'https://d3t3ozftmdmh3i.cloudfront.net/production/podcast_uploaded_nologo/1/1_1.jpg',
+                    link: this.rssUrl,
+                    lastBuildDate: new Date()
+                };
+
+                const sampleEpisodes = [
+                    {
+                        title: 'Episodio Inaugural - Bienvenidos al Podcast',
+                        description: 'En este primer episodio te doy la bienvenida y te cuento qué puedes esperar de este podcast. Hablamos sobre los temas que vamos a tratar y la frecuencia de publicación.',
+                        date: '2024-01-15'
+                    },
+                    {
+                        title: 'Reflexiones sobre el Crecimiento Personal',
+                        description: 'Una conversación profunda sobre el desarrollo personal, los hábitos que nos ayudan a crecer y cómo superar los obstáculos que encontramos en el camino.',
+                        date: '2024-01-08'
+                    },
+                    {
+                        title: 'Entrevista Especial - Historias de Éxito',
+                        description: 'Entrevisto a una persona inspiradora que ha logrado grandes cosas en su campo. Compartimos sus secretos, fracasos y aprendizajes más valiosos.',
+                        date: '2024-01-01'
+                    },
+                    {
+                        title: 'Análisis de Tendencias Actuales',
+                        description: 'Exploramos las tendencias más importantes del momento y cómo pueden afectar nuestro futuro. Una mirada crítica y constructiva a los cambios sociales.',
+                        date: '2023-12-25'
+                    },
+                    {
+                        title: 'Consejos Prácticos para el Día a Día',
+                        description: 'Tips y estrategias que puedes implementar inmediatamente para mejorar tu productividad, bienestar y relaciones interpersonales.',
+                        date: '2023-12-18'
+                    },
+                    {
+                        title: 'El Arte de la Comunicación Efectiva',
+                        description: 'Técnicas y estrategias para mejorar tus habilidades de comunicación tanto en el ámbito personal como profesional.',
+                        date: '2023-12-11'
+                    },
+                    {
+                        title: 'Mindfulness y Bienestar Mental',
+                        description: 'Exploramos prácticas de mindfulness y su impacto en nuestro bienestar mental y emocional.',
+                        date: '2023-12-04'
+                    }
+                ];
+
+                this.episodes = sampleEpisodes.map((ep, index) => ({
+                    id: `sample-${index}`,
+                    title: ep.title,
+                    description: ep.description,
+                    audioUrl: '#',
+                    duration: Math.floor(Math.random() * (3600 - 1200) + 1200),
+                    publishDate: new Date(ep.date),
+                    artwork: `https://picsum.photos/300/300?random=ep${index}`,
+                    playCount: Math.floor(Math.random() * 500) + 100,
+                    guid: `sample-guid-${index}`,
+                    currentTime: 0
+                }));
+
+                this.filteredEpisodes = [...this.episodes];
+                this.updateUI();
+            }
+
+            async tryLoadRealData() {
+                this.showNotification(this.t('notifications.loading_rss'));
+                
+                // Cambiar orden: AllOrigins primero (más confiable), luego RSS2JSON, luego directo
+                const methods = [
+                    { name: 'AllOrigins', fn: () => this.loadViaAllOrigins() },
+                    { name: 'Directo', fn: () => this.loadDirectly() },
+                    { name: 'RSS2JSON', fn: () => this.loadViaRSS2JSON() }
+                ];
+
+                for (const method of methods) {
+                    try {
+                        console.log(`🔄 Intentando cargar RSS con: ${method.name}`);
+                        const success = await method.fn();
+                        if (success) {
+                            console.log(`✅ RSS cargado exitosamente con: ${method.name}`);
+                            this.dataLoaded = true;
+                            this.showNotification(this.t('notifications.rss_success'));
+                            this.filteredEpisodes = [...this.episodes];
+                            this.updateUI();
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(`❌ ${method.name} falló:`, error.message);
+                    }
+                }
+
+                console.error('❌ Todos los métodos de carga fallaron');
+                this.showNotification(this.t('notifications.rss_error'), 'error');
+            }
+
+            async loadViaRSS2JSON() {
+                const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(this.rssUrl)}&count=50`;
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    this.parseRealData(data);
+                    return true;
+                }
+                throw new Error('RSS2JSON failed');
+            }
+
+            async loadViaAllOrigins() {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(this.rssUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`AllOrigins HTTP error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.contents) {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                    
+                    // Verificar si hay errores de parseo
+                    const parserError = xmlDoc.querySelector('parsererror');
+                    if (parserError) {
+                        throw new Error('XML parsing error');
+                    }
+                    
+                    this.parseXMLData(xmlDoc);
+                    return true;
+                }
+                throw new Error('AllOrigins: No contents');
+            }
+
+            async loadDirectly() {
+                const response = await fetch(this.rssUrl, {
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/rss+xml, application/xml, text/xml'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Direct fetch HTTP error: ${response.status}`);
+                }
+                
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                
+                // Verificar si hay errores de parseo
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    throw new Error('XML parsing error');
+                }
+                
+                this.parseXMLData(xmlDoc);
+                return true;
+            }
+
+            parseRealData(data) {
+                this.podcastInfo = {
+                    title: data.feed.title || 'Mi Podcast',
+                    description: data.feed.description || 'Descripción del podcast',
+                    image: data.feed.image || 'https://picsum.photos/300/300?random=podcast',
+                    link: data.feed.link || '',
+                    lastBuildDate: new Date()
+                };
+                
+                this.episodes = data.items.map((item, index) => ({
+                    id: `real-${Date.now()}-${index}`,
+                    title: item.title || `Episodio ${index + 1}`,
+                    description: this.cleanDescription(item.description || item.content || ''),
+                    audioUrl: item.enclosure?.link || item.link || '#',
+                    duration: this.parseDuration(item.itunes?.duration) || this.estimateDuration(),
+                    publishDate: new Date(item.pubDate || Date.now()),
+                    artwork: item.thumbnail || item.itunes?.image || this.podcastInfo.image,
+                    playCount: Math.floor(Math.random() * 500) + 50,
+                    guid: item.guid || item.link,
+                    currentTime: 0
+                }));
+            }
+
+            parseXMLData(xmlDoc) {
+                const channel = xmlDoc.querySelector('channel');
+                if (!channel) throw new Error('Invalid RSS format');
+
+                const podcastImage = channel.querySelector('image url')?.textContent || 
+                                   channel.querySelector('itunes\\:image')?.getAttribute('href') ||
+                                   channel.querySelector('image')?.getAttribute('href') ||
+                                   'https://picsum.photos/300/300?random=podcast';
+
+                this.podcastInfo = {
+                    title: channel.querySelector('title')?.textContent || 'Mi Podcast',
+                    description: channel.querySelector('description')?.textContent || 'Descripción del podcast',
+                    image: podcastImage,
+                    link: channel.querySelector('link')?.textContent || '',
+                    lastBuildDate: new Date()
+                };
+
+                const items = xmlDoc.querySelectorAll('item');
+                this.episodes = Array.from(items).map((item, index) => {
+                    const episodeImage = item.querySelector('itunes\\:image')?.getAttribute('href') ||
+                                        item.querySelector('image')?.getAttribute('href') ||
+                                        this.podcastInfo.image;
+                    
+                    const durationStr = item.querySelector('itunes\\:duration')?.textContent;
+                    
+                    return {
+                        id: `xml-${Date.now()}-${index}`,
+                        title: item.querySelector('title')?.textContent || `Episodio ${index + 1}`,
+                        description: this.cleanDescription(item.querySelector('description')?.textContent || ''),
+                        audioUrl: item.querySelector('enclosure')?.getAttribute('url') || '#',
+                        duration: this.parseDuration(durationStr) || this.estimateDuration(),
+                        publishDate: new Date(item.querySelector('pubDate')?.textContent || Date.now()),
+                        artwork: episodeImage,
+                        playCount: Math.floor(Math.random() * 500) + 50,
+                        guid: item.querySelector('guid')?.textContent || `guid-${index}`,
+                        currentTime: 0
+                    };
+                });
+            }
+
+            parseDuration(durationStr) {
+                if (!durationStr) return null;
+                
+                if (typeof durationStr === 'number') return durationStr;
+                
+                const parts = durationStr.split(':').map(Number);
+                if (parts.length === 3) {
+                    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+                } else if (parts.length === 2) {
+                    return parts[0] * 60 + parts[1];
+                } else {
+                    return parseInt(durationStr) || null;
+                }
+            }
+
+            cleanDescription(description) {
+                return description
+                    .replace(/<[^>]*>/g, '')
+                    .replace(/&nbsp;/g, ' ')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .trim();
+            }
+
+            estimateDuration() {
+                return Math.floor(Math.random() * (3600 - 1200) + 1200);
+            }
+
+            updateUI() {
+                this.updatePodcastHeader();
+                this.updateEpisodeList();
+                this.updateBookmarks();
+            }
+
+            updatePodcastHeader() {
+                const container = document.getElementById('podcastHeader');
+                if (!container || !this.podcastInfo) return;
+
+                container.innerHTML = `
+                    <img class="podcast-artwork" src="${this.podcastInfo.image}" alt="${this.podcastInfo.title}">
+                    <div class="podcast-details">
+                        <h1>${this.podcastInfo.title}</h1>
+                    </div>
+                `;
+            }
+
+            updateEpisodeList() {
+                const container = document.getElementById('episodeList');
+                const paginationContainer = document.getElementById('pagination');
+                if (!container) return;
+
+                const startIndex = this.currentPage * this.episodesPerPage;
+                const endIndex = startIndex + this.episodesPerPage;
+                const currentEpisodes = this.filteredEpisodes.slice(startIndex, endIndex);
+
+                container.innerHTML = currentEpisodes.map(episode => this.generateEpisodeCard(episode)).join('');
+
+                // Update pagination
+                const totalPages = Math.ceil(this.filteredEpisodes.length / this.episodesPerPage);
+                if (totalPages > 1) {
+                    paginationContainer.innerHTML = `
+                        <button class="pagination-btn" onclick="changePage(${this.currentPage - 1})" ${this.currentPage === 0 ? 'disabled' : ''}>
+                            ${this.t('pagination.previous')}
+                        </button>
+                        <span style="color: var(--text-muted); padding: 0.75rem;">
+                            ${this.t('pagination.page')} ${this.currentPage + 1} ${this.t('pagination.of')} ${totalPages}
+                        </span>
+                        <button class="pagination-btn" onclick="changePage(${this.currentPage + 1})" ${this.currentPage >= totalPages - 1 ? 'disabled' : ''}>
+                            ${this.t('pagination.next')}
+                        </button>
+                    `;
+                } else {
+                    paginationContainer.innerHTML = '';
+                }
+            }
+
+            generateEpisodeCard(episode) {
+                const statusIcon = this.dataLoaded ? '🎧' : '📝';
+                
+                return `
+                    <div class="episode-card" onclick="selectEpisode('${episode.id}')">
+                        <div class="episode-header">
+                            <img class="episode-artwork" src="${episode.artwork}" alt="${episode.title}" 
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMmEyYTJhIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOWY4MDY5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn46nPC90ZXh0Pgo8L3N2Zz4K'">
+                            <div class="episode-info">
+                                <div class="episode-title">${statusIcon} ${episode.title}</div>
+                                <div class="episode-meta">
+                                    <span>${this.formatDate(episode.publishDate)}</span>
+                                    <span>${this.formatTime(episode.duration)}</span>
+                                    <span>${episode.playCount} reproducciones</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="episode-description">${episode.description}</div>
+                        <div class="episode-actions">
+                            <button class="btn" onclick="event.stopPropagation(); playEpisode('${episode.id}')">
+                                ${this.t('episode.play')}
+                            </button>
+                            <button class="btn btn-secondary" onclick="event.stopPropagation(); addBookmark('${episode.id}')">
+                                ${this.t('episode.bookmark')}
+                            </button>
+                            <button class="btn btn-secondary" onclick="event.stopPropagation(); downloadEpisode('${episode.id}')">
+                                ${this.t('episode.download')}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateBookmarks() {
+                const container = document.getElementById('bookmarksContent');
+                if (!container) return;
+
+                if (this.bookmarks.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <h2>${this.t('bookmarks.title')}</h2>
+                            <p>${this.t('bookmarks.empty')}</p>
+                            <p>${this.t('bookmarks.empty.desc')}</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <h2>${this.t('bookmarks.title')}</h2>
+                        <div class="episode-list">
+                            ${this.bookmarks.map(bookmark => `
+                                <div class="episode-card">
+                                    <div class="episode-title">${bookmark.episodeTitle}</div>
+                                    <p style="margin: 1rem 0; color: var(--text-secondary);">Nota: ${bookmark.note}</p>
+                                    ${bookmark.timePosition > 0 ? `
+                                        <p style="color: var(--accent); font-weight: bold; margin: 0.5rem 0;">
+                                            ⏱️ ${this.t('time.current')}: ${this.formatTime(bookmark.timePosition)}
+                                        </p>
+                                    ` : ''}
+                                    <p style="color: var(--text-muted); font-size: 0.9rem;">${this.t('time.added')}: ${this.formatDate(bookmark.timestamp)}</p>
+                                    <div class="episode-actions">
+                                        ${bookmark.timePosition > 0 ? `
+                                            <button class="btn" onclick="playFromBookmark('${bookmark.episodeId}', ${bookmark.timePosition})">${this.t('episode.continue')}</button>
+                                        ` : `
+                                            <button class="btn" onclick="playEpisode('${bookmark.episodeId})')">${this.t('episode.play')}</button>
+                                        `}
+                                        <button class="btn btn-secondary" onclick="removeBookmark(${bookmark.id})">${this.t('episode.delete')}</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                
+                if (hours > 0) {
+                    return `${hours}h ${minutes}m`;
+                }
+                return `${minutes}m`;
+            }
+
+            formatDate(date) {
+                return new Intl.DateTimeFormat('es-ES', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(date);
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                if (type === 'error') {
+                    notification.style.background = 'var(--error)';
+                }
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 4000);
+            }
+        }
+
+        // Initialize the app
+        const app = new PodcastApp();
+        
+        // Cargar banners y redes sociales al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBanners();
+            updateSocialLinks();
+        });
+
+        // Global functions
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeNavItem = document.querySelector(`[data-section="${sectionName}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil(app.filteredEpisodes.length / app.episodesPerPage);
+            if (newPage >= 0 && newPage < totalPages) {
+                app.currentPage = newPage;
+                app.updateEpisodeList();
+            }
+        }
+
+        function performSearch(query) {
+            if (!query.trim()) {
+                app.filteredEpisodes = [...app.episodes];
+            } else {
+                app.filteredEpisodes = app.episodes.filter(episode => 
+                    episode.title.toLowerCase().includes(query.toLowerCase()) ||
+                    episode.description.toLowerCase().includes(query.toLowerCase())
+                );
+            }
+            
+            app.currentPage = 0;
+            app.updateEpisodeList();
+        }
+
+        function tryLoadRealData() {
+            app.tryLoadRealData();
+        }
+
+        // Función para mostrar controles de admin (acceso secreto)
+        function showAdminControlsManual() {
+            app.showAdminControls();
+        }
+
+        function toggleTheme() {
+            app.currentTheme = app.currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('podcast_theme', app.currentTheme);
+            app.applyTheme();
+            
+            const themeName = app.currentTheme === 'dark' ? app.t('notifications.theme.night') : app.t('notifications.theme.day');
+            app.showNotification(`Tema cambiado a ${app.currentTheme === 'dark' ? 'noche' : 'día'}`);
+        }
+
+        function changeLanguage(lang) {
+            // Función deshabilitada - solo español disponible
+            console.log('Solo español disponible');
+        }
+
+        function selectEpisode(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (episode) {
+                const savedProgress = JSON.parse(localStorage.getItem('episodeProgress') || '{}');
+                episode.currentTime = savedProgress[episode.id] || 0;
+                
+                app.currentEpisode = episode;
+                showPlayerContent(episode);
+                showSection('player');
+            }
+        }
+
+        function playEpisode(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (episode) {
+                app.currentEpisode = episode;
+                app.isPlaying = true;
+                app.trackPlay(episode.id, episode.title);
+                app.showNotification(`Reproduciendo: ${episode.title}`);
+                showPlayerContent(episode);
+                showSection('player');
+            }
+        }
+
+        function playFromBookmark(episodeId, timePosition) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (episode) {
+                episode.currentTime = timePosition;
+                app.currentEpisode = episode;
+                app.isPlaying = true;
+                app.trackPlay(episode.id, episode.title);
+                
+                showPlayerContent(episode);
+                showSection('player');
+                
+                setTimeout(() => {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    if (audioPlayer) {
+                        audioPlayer.currentTime = timePosition;
+                        audioPlayer.play();
+                    }
+                }, 100);
+                
+                app.showNotification(`Continuando desde ${app.formatTime(timePosition)}`);
+            }
+        }
+
+        function showPlayerContent(episode) {
+            const playerContent = document.getElementById('playerContent');
+            if (playerContent && episode) {
+                const isReal = app.dataLoaded;
+                
+                playerContent.innerHTML = `
+                    <div style="background: var(--bg-secondary); border-radius: 20px; padding: 2rem;">
+                        <div class="episode-header">
+                            <img class="episode-artwork" src="${episode.artwork}" alt="${episode.title}" style="width: 120px; height: 120px;">
+                            <div class="episode-info">
+                                <div class="episode-title" style="font-size: 1.5rem; margin-bottom: 1rem;">${episode.title}</div>
+                                <div class="episode-meta" style="font-size: 1rem;">
+                                    <span>${app.formatDate(episode.publishDate)}</span>
+                                    <span>${app.formatTime(episode.duration)}</span>
+                                    <span>${episode.playCount} reproducciones</span>
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    ${isReal 
+                                        ? '<span style="background: var(--success); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">✅ Episodio Real</span>'
+                                        : '<span style="background: var(--error); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">📝 Episodio de Ejemplo</span>'
+                                    }
+                                </div>
+                                <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                                    ⏱️ Tiempo actual: <span id="currentTimeDisplay">${app.formatTime(episode.currentTime || 0)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="episode-description" style="margin: 2rem 0; font-size: 1.1rem; line-height: 1.6;">${episode.description}</div>
+                        
+                        <!-- Barra de progreso -->
+                        <div style="margin: 2rem 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                                <span id="timeDisplay">${app.formatTime(episode.currentTime || 0)}</span>
+                                <span>${app.formatTime(episode.duration)}</span>
+                            </div>
+                            <div style="background: var(--bg-tertiary); height: 6px; border-radius: 3px; cursor: pointer;" onclick="seekTo(event)">
+                                <div id="progressBar" style="background: var(--accent); height: 100%; border-radius: 3px; width: ${((episode.currentTime || 0) / episode.duration) * 100}%; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: center; gap: 1rem; margin: 2rem 0;">
+                            <button class="btn btn-secondary" onclick="skipBackward()">⏪ -15s</button>
+                            <button class="btn" onclick="togglePlayPause()" id="playPauseBtn" style="padding: 1.5rem; font-size: 2rem;">
+                                ${app.isPlaying ? '⏸️' : '▶️'}
+                            </button>
+                            <button class="btn btn-secondary" onclick="skipForward()">⏩ +30s</button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <button class="btn btn-secondary" onclick="addTimestampBookmark('${episode.id}')">${app.t('episode.mark_time')}</button>
+                            <button class="btn btn-secondary" onclick="shareEpisode('${episode.id}')">${app.t('episode.share')}</button>
+                            <button class="btn btn-secondary" onclick="downloadEpisode('${episode.id}')">${app.t('episode.download')}</button>
+                        </div>
+                        
+                        ${episode.audioUrl !== '#' && isReal ? `
+                            <audio id="audioPlayer" controls style="width: 100%; margin-top: 2rem;" 
+                                   ontimeupdate="updateProgress()" 
+                                   onloadedmetadata="initializePlayer()"
+                                   currentTime="${episode.currentTime || 0}">
+                                <source src="${episode.audioUrl}" type="audio/mpeg">
+                                Tu navegador no soporta el elemento de audio.
+                            </audio>
+                        ` : `
+                            <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; color: var(--text-muted);">
+                                ${isReal 
+                                    ? 'ℹ️ Audio disponible cuando se carguen los datos reales del RSS'
+                                    : 'ℹ️ Este es un episodio de demostración. Configura el acceso RSS para audio real.'
+                                }
+                            </div>
+                        `}
+                    </div>
+                `;
+                
+                if (episode.audioUrl !== '#' && isReal) {
+                    setTimeout(() => {
+                        const audioPlayer = document.getElementById('audioPlayer');
+                        if (audioPlayer && episode.currentTime > 0) {
+                            audioPlayer.currentTime = episode.currentTime;
+                        }
+                    }, 100);
+                }
+            }
+        }
+
+        function togglePlayPause() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            if (audioPlayer) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    app.isPlaying = true;
+                } else {
+                    audioPlayer.pause();
+                    app.isPlaying = false;
+                }
+            } else {
+                app.isPlaying = !app.isPlaying;
+            }
+            
+            const btn = document.getElementById('playPauseBtn');
+            if (btn) {
+                btn.textContent = app.isPlaying ? '⏸️' : '▶️';
+            }
+            app.showNotification(app.isPlaying ? app.t('notifications.playing') : app.t('notifications.paused'));
+        }
+
+        function skipBackward() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            if (audioPlayer) {
+                audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 15);
+                updateCurrentEpisodeTime(audioPlayer.currentTime);
+                app.showNotification('⏪ -15s');
+            } else {
+                if (app.currentEpisode) {
+                    app.currentEpisode.currentTime = Math.max(0, (app.currentEpisode.currentTime || 0) - 15);
+                    updateProgressDisplay();
+                    app.showNotification('⏪ -15s');
+                }
+            }
+        }
+
+        function skipForward() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            if (audioPlayer) {
+                const newTime = Math.min(audioPlayer.duration || app.currentEpisode.duration, audioPlayer.currentTime + 30);
+                audioPlayer.currentTime = newTime;
+                updateCurrentEpisodeTime(newTime);
+                app.showNotification('⏩ +30s');
+            } else {
+                if (app.currentEpisode) {
+                    app.currentEpisode.currentTime = Math.min(app.currentEpisode.duration, (app.currentEpisode.currentTime || 0) + 30);
+                    updateProgressDisplay();
+                    app.showNotification('⏩ +30s');
+                }
+            }
+        }
+
+        function seekTo(event) {
+            if (!app.currentEpisode) return;
+            
+            const progressContainer = event.currentTarget;
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const percentage = clickX / rect.width;
+            const newTime = percentage * app.currentEpisode.duration;
+            
+            const audioPlayer = document.getElementById('audioPlayer');
+            if (audioPlayer) {
+                audioPlayer.currentTime = newTime;
+            } else {
+                app.currentEpisode.currentTime = newTime;
+                updateProgressDisplay();
+            }
+            
+            app.showNotification(`Saltando a ${app.formatTime(newTime)}`);
+        }
+
+        function updateProgress() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            if (!audioPlayer || !app.currentEpisode) return;
+            
+            const currentTime = audioPlayer.currentTime;
+            updateCurrentEpisodeTime(currentTime);
+            updateProgressDisplay();
+        }
+
+        function updateCurrentEpisodeTime(currentTime) {
+            if (app.currentEpisode) {
+                app.currentEpisode.currentTime = currentTime;
+                
+                const savedProgress = JSON.parse(localStorage.getItem('episodeProgress') || '{}');
+                savedProgress[app.currentEpisode.id] = currentTime;
+                localStorage.setItem('episodeProgress', JSON.stringify(savedProgress));
+            }
+        }
+
+        function updateProgressDisplay() {
+            if (!app.currentEpisode) return;
+            
+            const currentTime = app.currentEpisode.currentTime || 0;
+            const duration = app.currentEpisode.duration;
+            const percentage = (currentTime / duration) * 100;
+            
+            const progressBar = document.getElementById('progressBar');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+            
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+            }
+            
+            if (timeDisplay) {
+                timeDisplay.textContent = app.formatTime(currentTime);
+            }
+            
+            if (currentTimeDisplay) {
+                currentTimeDisplay.textContent = app.formatTime(currentTime);
+            }
+        }
+
+        function initializePlayer() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            if (!audioPlayer || !app.currentEpisode) return;
+            
+            const savedProgress = JSON.parse(localStorage.getItem('episodeProgress') || '{}');
+            const savedTime = savedProgress[app.currentEpisode.id] || 0;
+            
+            if (savedTime > 0) {
+                audioPlayer.currentTime = savedTime;
+                app.currentEpisode.currentTime = savedTime;
+            }
+            
+            updateProgressDisplay();
+        }
+
+        function addBookmark(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (!episode) return;
+            
+            const note = prompt('Añadir nota al marcador (opcional):') || 'Sin nota';
+            const bookmark = {
+                id: Date.now(),
+                episodeId: episode.id,
+                episodeTitle: episode.title,
+                note: note,
+                timestamp: new Date(),
+                timePosition: 0
+            };
+            
+            app.bookmarks.push(bookmark);
+            app.updateBookmarks();
+            app.showNotification(app.t('notifications.bookmark_added'));
+        }
+
+        function addTimestampBookmark(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (!episode) return;
+            
+            const currentTime = episode.currentTime || 0;
+            const audioPlayer = document.getElementById('audioPlayer');
+            const actualTime = audioPlayer ? audioPlayer.currentTime : currentTime;
+            
+            const note = prompt(`Añadir nota al marcador en ${app.formatTime(actualTime)} (opcional):`) || 'Sin nota';
+            const bookmark = {
+                id: Date.now(),
+                episodeId: episode.id,
+                episodeTitle: episode.title,
+                note: note,
+                timestamp: new Date(),
+                timePosition: actualTime
+            };
+            
+            app.bookmarks.push(bookmark);
+            app.updateBookmarks();
+            app.showNotification(`Marcador añadido en ${app.formatTime(actualTime)}`);
+        }
+
+        function removeBookmark(bookmarkId) {
+            app.bookmarks = app.bookmarks.filter(b => b.id !== bookmarkId);
+            app.updateBookmarks();
+            app.showNotification(app.t('notifications.bookmark_deleted'));
+        }
+
+        function shareEpisode(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (!episode) return;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: episode.title,
+                    text: episode.description,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(`${episode.title} - ${window.location.href}`);
+                app.showNotification(app.t('notifications.link_copied'));
+            }
+        }
+
+        async function downloadEpisode(episodeId) {
+            const episode = app.episodes.find(e => e.id === episodeId);
+            if (!episode) return;
+            
+            // Verificar si el episodio tiene URL de audio
+            if (!episode.audioUrl || episode.audioUrl === '#') {
+                app.showNotification('Este episodio no tiene audio disponible para descargar', 'error');
+                return;
+            }
+            
+            app.showNotification('⏳ Preparando descarga...');
+            
+            // Usar proxy para evitar problemas de CORS y descargar directamente
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(episode.audioUrl)}`;
+            
+            // Crear enlace de descarga directa
+            const link = document.createElement('a');
+            link.href = proxyUrl;
+            link.download = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
+            link.style.display = 'none';
+            
+            // Añadir al DOM, hacer clic y eliminar
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+            }, 100);
+            
+            app.trackDownload(episode.id, episode.title);
+            app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
+        }
+
+        function showAdminLogin() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>🔐 Acceso de Administrador</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        Panel de administración para gestión avanzada
+                    </p>
+                    <input type="text" id="adminUser" placeholder="Usuario">
+                    <input type="password" id="adminPass" placeholder="Contraseña">
+                    <div class="modal-actions">
+                        <button class="btn" onclick="adminLogin()">Iniciar Sesión</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus en el campo de usuario
+            setTimeout(() => document.getElementById('adminUser').focus(), 100);
+        }
+
+        function adminLogin() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            
+            // Obtener credenciales guardadas o usar las por defecto
+            const savedCreds = JSON.parse(localStorage.getItem('podcast_admin_creds') || '{"user":"Larios","pass":"Larios88.."}');
+            
+            if (user === savedCreds.user && pass === savedCreds.pass) {
+                app.isAdmin = true;
+                document.querySelector('.modal-overlay').remove();
+                showAdminPanel();
+                
+                // Mostrar sección RSS en configuración
+                const rssSection = document.getElementById('rssConfigSection');
+                if (rssSection) {
+                    rssSection.style.display = 'block';
+                }
+            } else {
+                app.showNotification('Credenciales incorrectas', 'error');
+            }
+        }
+
+        function showAdminPanel() {
+            const currentRssUrl = localStorage.getItem('podcast_rss_url') || app.rssUrl;
+            const banners = JSON.parse(localStorage.getItem('podcast_banners') || '{"top":"","left":"","right":"","bottom":""}');
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.overflowY = 'auto';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; position: sticky; top: 0; background: var(--bg-secondary); padding: 1rem 0; z-index: 10;">
+                        <h2>🔐 Panel de Administrador</h2>
+                        <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">✕</button>
+                    </div>
+                    
+                    <!-- Analíticas Avanzadas -->
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid var(--accent);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                            <h3 style="margin: 0;">📊 Analíticas del Podcast</h3>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="filterAnalytics('24h')" id="filter24h" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Últimas 24h</button>
+                                <button class="btn btn-secondary" onclick="filterAnalytics('7d')" id="filter7d" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Últimos 7 días</button>
+                                <button class="btn btn-secondary" onclick="filterAnalytics('30d')" id="filter30d" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Últimos 30 días</button>
+                                <button class="btn" onclick="filterAnalytics('all')" id="filterAll" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Todo</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Métricas Principales -->
+                        <div class="stats-overview" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="stat-card">
+                                <div class="stat-number" id="statVisits">0</div>
+                                <div class="stat-label">👁️ Visitas</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="statPlays">0</div>
+                                <div class="stat-label">▶️ Reproducciones</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="statDownloads">0</div>
+                                <div class="stat-label">⬇️ Descargas</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="statBannerClicks">0</div>
+                                <div class="stat-label">📢 Clics Banners</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="statSocialClicks">0</div>
+                                <div class="stat-label">🌐 Clics Redes</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="statAvgTime">0m</div>
+                                <div class="stat-label">⏱️ Tiempo Medio</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Métricas Secundarias -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <!-- Top Episodios -->
+                            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--accent);">🎧 Top 5 Episodios</h4>
+                                <div id="topEpisodes" style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    <p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Ubicaciones -->
+                            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--accent);">🌍 Top Ubicaciones</h4>
+                                <div id="topLocations" style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    <p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Dispositivos -->
+                            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--accent);">📱 Dispositivos</h4>
+                                <div id="deviceStats" style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    <p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem; text-align: center;">
+                            <button class="btn btn-secondary" onclick="exportAnalytics()" style="font-size: 0.85rem;">📥 Exportar Datos</button>
+                            <button class="btn btn-secondary" onclick="resetAnalytics()" style="font-size: 0.85rem;">🗑️ Resetear Analíticas</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración RSS -->
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid var(--accent);">
+                        <h4 style="margin-bottom: 1rem;">📡 Configuración del Feed RSS</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem;">Estado: ${app.dataLoaded ? '✅ Datos reales cargados' : '❌ Usando datos de ejemplo'}</p>
+                        
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">URL del RSS:</label>
+                        <input type="url" id="adminRssUrl" value="${currentRssUrl}" 
+                               style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 1rem;">
+                        
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn" onclick="saveRssUrl()">💾 Guardar URL</button>
+                            <button class="btn btn-secondary" onclick="tryLoadRealData()">🔄 Recargar Datos</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración de Seguridad -->
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid var(--error);">
+                        <h4 style="margin-bottom: 1rem;">🔒 Configuración de Seguridad</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                            Cambia las credenciales de acceso y la palabra clave del menú oculto periódicamente para mayor seguridad.
+                        </p>
+                        
+                        <!-- Credenciales de Acceso -->
+                        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <h5 style="margin-bottom: 0.75rem; color: var(--accent);">👤 Credenciales de Acceso</h5>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Usuario:</label>
+                            <input type="text" id="newAdminUser" value="${JSON.parse(localStorage.getItem('podcast_admin_creds') || '{"user":"Larios","pass":"Larios88.."}').user}" 
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 1rem;">
+                            
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Contraseña:</label>
+                            <input type="password" id="newAdminPass" value="${JSON.parse(localStorage.getItem('podcast_admin_creds') || '{"user":"Larios","pass":"Larios88.."}').pass}" 
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">
+                                ⚠️ Asegúrate de recordar estas credenciales. No hay forma de recuperarlas.
+                            </p>
+                        </div>
+                        
+                        <!-- Palabra Clave del Menú Oculto -->
+                        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <h5 style="margin-bottom: 0.75rem; color: var(--accent);">⌨️ Palabra Clave del Menú Oculto</h5>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Palabra clave (escríbela en cualquier momento para mostrar el botón de admin):</label>
+                            <input type="text" id="newSecretCode" value="${localStorage.getItem('podcast_secret_code') || 'larios'}" 
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <p style="color: var(--text-muted); font-size: 0.8rem;">
+                                💡 Escribe esta palabra en cualquier parte de la web para mostrar el botón de acceso al panel.
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn" onclick="saveSecuritySettings()">💾 Guardar Configuración de Seguridad</button>
+                            <button class="btn btn-secondary" onclick="resetSecuritySettings()">🔄 Restaurar Valores por Defecto</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Gestión de Redes Sociales -->
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid var(--accent);">
+                        <h4 style="margin-bottom: 1rem;">🌐 Redes Sociales en Header</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Configura hasta 4 iconos de redes sociales que aparecerán en la parte derecha del header.
+                        </p>
+                        
+                        <!-- Red Social 1 -->
+                        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                🔗 Red Social 1
+                            </label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                <input type="file" id="social1IconFile" accept="image/*" onchange="handleSocialIconUpload(1, this)" 
+                                       style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                                <img id="social1IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon || ''}" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon ? '' : 'display: none;'}">
+                            </div>
+                            <input type="hidden" id="social1Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon || ''}">
+                            <input type="url" id="social1Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Link || ''}" placeholder="URL de destino (ej: https://facebook.com/tupagina)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Red Social 2 -->
+                        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                🔗 Red Social 2
+                            </label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                <input type="file" id="social2IconFile" accept="image/*" onchange="handleSocialIconUpload(2, this)" 
+                                       style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                                <img id="social2IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon || ''}" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon ? '' : 'display: none;'}">
+                            </div>
+                            <input type="hidden" id="social2Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon || ''}">
+                            <input type="url" id="social2Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Link || ''}" placeholder="URL de destino (ej: https://twitter.com/tuusuario)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Red Social 3 -->
+                        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                🔗 Red Social 3
+                            </label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                <input type="file" id="social3IconFile" accept="image/*" onchange="handleSocialIconUpload(3, this)" 
+                                       style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                                <img id="social3IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon || ''}" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon ? '' : 'display: none;'}">
+                            </div>
+                            <input type="hidden" id="social3Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon || ''}">
+                            <input type="url" id="social3Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Link || ''}" placeholder="URL de destino (ej: https://instagram.com/tuusuario)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Red Social 4 -->
+                        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                🔗 Red Social 4
+                            </label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                <input type="file" id="social4IconFile" accept="image/*" onchange="handleSocialIconUpload(4, this)" 
+                                       style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
+                                <img id="social4IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon || ''}" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon ? '' : 'display: none;'}">
+                            </div>
+                            <input type="hidden" id="social4Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon || ''}">
+                            <input type="url" id="social4Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Link || ''}" placeholder="URL de destino (ej: https://youtube.com/tucanal)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <button class="btn" onclick="saveSocialLinks()">💾 Guardar Redes Sociales</button>
+                        <button class="btn btn-secondary" onclick="clearSocialLinks()">🗑️ Limpiar Todas</button>
+                    </div>
+                    
+                    <!-- Gestión de Banners Publicitarios -->
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid var(--accent);">
+                        <h4 style="margin-bottom: 1rem;">📢 Gestión de Banners Publicitarios</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Los banners se mostrarán en todas las páginas. Deja vacío para no mostrar banner en esa posición.
+                        </p>
+                        
+                        <!-- Banner Superior -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                📌 Banner Superior (728x90 escritorio, 320x50 móvil)
+                            </label>
+                            <input type="url" id="bannerTop" value="${banners.top}" placeholder="URL de la imagen del banner superior"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <input type="url" id="bannerTopLink" value="${banners.topLink || ''}" placeholder="URL de destino al hacer clic (opcional)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Banner Izquierdo -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                ◀️ Banner Lateral Izquierdo (160x600 escritorio)
+                            </label>
+                            <input type="url" id="bannerLeft" value="${banners.left}" placeholder="URL de la imagen del banner izquierdo"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <input type="url" id="bannerLeftLink" value="${banners.leftLink || ''}" placeholder="URL de destino al hacer clic (opcional)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Banner Derecho -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                ▶️ Banner Lateral Derecho (160x600 escritorio)
+                            </label>
+                            <input type="url" id="bannerRight" value="${banners.right}" placeholder="URL de la imagen del banner derecho"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <input type="url" id="bannerRightLink" value="${banners.rightLink || ''}" placeholder="URL de destino al hacer clic (opcional)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <!-- Banner Inferior -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
+                                📍 Banner Inferior (728x90 escritorio, 320x50 móvil)
+                            </label>
+                            <input type="url" id="bannerBottom" value="${banners.bottom}" placeholder="URL de la imagen del banner inferior"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <input type="url" id="bannerBottomLink" value="${banners.bottomLink || ''}" placeholder="URL de destino al hacer clic (opcional)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
+                        </div>
+                        
+                        <button class="btn" onclick="saveBanners()">💾 Guardar Banners</button>
+                        <button class="btn btn-secondary" onclick="clearBanners()">🗑️ Limpiar Todos</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">🚪 Cerrar Panel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Actualizar dashboard de analíticas
+            setTimeout(() => updateAnalyticsDashboard(), 100);
+        }
+        
+        function saveRssUrl() {
+            const newUrl = document.getElementById('adminRssUrl').value.trim();
+            if (!newUrl) {
+                app.showNotification('Por favor ingresa una URL válida', 'error');
+                return;
+            }
+            
+            localStorage.setItem('podcast_rss_url', newUrl);
+            app.rssUrl = newUrl;
+            app.showNotification('✅ URL del RSS guardada. Recargando datos...');
+            
+            setTimeout(() => {
+                app.tryLoadRealData();
+            }, 500);
+        }
+        
+        function saveSecuritySettings() {
+            const newUser = document.getElementById('newAdminUser').value.trim();
+            const newPass = document.getElementById('newAdminPass').value.trim();
+            const newSecret = document.getElementById('newSecretCode').value.trim().toLowerCase();
+            
+            // Validaciones
+            if (!newUser || newUser.length < 3) {
+                app.showNotification('❌ El usuario debe tener al menos 3 caracteres', 'error');
+                return;
+            }
+            
+            if (!newPass || newPass.length < 6) {
+                app.showNotification('❌ La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+            
+            if (!newSecret || newSecret.length < 4) {
+                app.showNotification('❌ La palabra clave debe tener al menos 4 caracteres', 'error');
+                return;
+            }
+            
+            // Guardar credenciales
+            const creds = {
+                user: newUser,
+                pass: newPass
+            };
+            localStorage.setItem('podcast_admin_creds', JSON.stringify(creds));
+            
+            // Guardar palabra clave
+            localStorage.setItem('podcast_secret_code', newSecret);
+            
+            app.showNotification('✅ Configuración de seguridad actualizada correctamente');
+            
+            // Cerrar panel y recargar
+            setTimeout(() => {
+                document.querySelector('.modal-overlay').remove();
+                app.showNotification('🔒 Por seguridad, vuelve a iniciar sesión con las nuevas credenciales');
+            }, 1500);
+        }
+        
+        function resetSecuritySettings() {
+            if (confirm('¿Estás seguro de que quieres restaurar los valores por defecto?\n\nUsuario: Larios\nContraseña: Larios88..\nPalabra clave: larios')) {
+                localStorage.removeItem('podcast_admin_creds');
+                localStorage.removeItem('podcast_secret_code');
+                app.showNotification('🔄 Configuración de seguridad restaurada a valores por defecto');
+                
+                // Actualizar campos
+                document.getElementById('newAdminUser').value = 'Larios';
+                document.getElementById('newAdminPass').value = 'Larios88..';
+                document.getElementById('newSecretCode').value = 'larios';
+            }
+        }
+        
+        function saveBanners() {
+            const banners = {
+                top: document.getElementById('bannerTop').value.trim(),
+                topLink: document.getElementById('bannerTopLink').value.trim(),
+                left: document.getElementById('bannerLeft').value.trim(),
+                leftLink: document.getElementById('bannerLeftLink').value.trim(),
+                right: document.getElementById('bannerRight').value.trim(),
+                rightLink: document.getElementById('bannerRightLink').value.trim(),
+                bottom: document.getElementById('bannerBottom').value.trim(),
+                bottomLink: document.getElementById('bannerBottomLink').value.trim()
+            };
+            
+            localStorage.setItem('podcast_banners', JSON.stringify(banners));
+            app.showNotification('✅ Banners guardados correctamente');
+            updateBanners();
+        }
+        
+        function clearBanners() {
+            if (confirm('¿Estás seguro de que quieres eliminar todos los banners?')) {
+                localStorage.removeItem('podcast_banners');
+                app.showNotification('🗑️ Todos los banners han sido eliminados');
+                updateBanners();
+                document.querySelector('.modal-overlay').remove();
+                showAdminPanel();
+            }
+        }
+        
+        // Funciones para Redes Sociales
+        function handleSocialIconUpload(socialNumber, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                app.showNotification('❌ Por favor selecciona un archivo de imagen válido', 'error');
+                return;
+            }
+            
+            // Validar tamaño (máximo 500KB)
+            if (file.size > 500000) {
+                app.showNotification('❌ La imagen es muy grande. Máximo 500KB', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                document.getElementById(`social${socialNumber}Icon`).value = base64Image;
+                const preview = document.getElementById(`social${socialNumber}IconPreview`);
+                preview.src = base64Image;
+                preview.style.display = 'block';
+                app.showNotification(`✅ Icono ${socialNumber} cargado correctamente`);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function saveSocialLinks() {
+            const socials = {
+                social1Icon: document.getElementById('social1Icon').value.trim(),
+                social1Link: document.getElementById('social1Link').value.trim(),
+                social2Icon: document.getElementById('social2Icon').value.trim(),
+                social2Link: document.getElementById('social2Link').value.trim(),
+                social3Icon: document.getElementById('social3Icon').value.trim(),
+                social3Link: document.getElementById('social3Link').value.trim(),
+                social4Icon: document.getElementById('social4Icon').value.trim(),
+                social4Link: document.getElementById('social4Link').value.trim()
+            };
+            
+            localStorage.setItem('podcast_socials', JSON.stringify(socials));
+            app.showNotification('✅ Redes sociales guardadas correctamente');
+            updateSocialLinks();
+        }
+        
+        function clearSocialLinks() {
+            if (confirm('¿Estás seguro de que quieres eliminar todas las redes sociales?')) {
+                localStorage.removeItem('podcast_socials');
+                app.showNotification('🗑️ Todas las redes sociales han sido eliminadas');
+                updateSocialLinks();
+                document.querySelector('.modal-overlay').remove();
+                showAdminPanel();
+            }
+        }
+        
+        function updateSocialLinks() {
+            const socials = JSON.parse(localStorage.getItem('podcast_socials') || '{}');
+            
+            // Buscar o crear el contenedor de redes sociales
+            let socialContainer = document.getElementById('socialLinksContainer');
+            if (!socialContainer) {
+                socialContainer = document.createElement('div');
+                socialContainer.id = 'socialLinksContainer';
+                socialContainer.className = 'social-links-container';
+                
+                // Añadir al header-controls
+                const headerControls = document.querySelector('.header-controls');
+                if (headerControls) {
+                    headerControls.appendChild(socialContainer);
+                }
+            }
+            
+            // Construir HTML de redes sociales
+            let socialHTML = '';
+            
+            for (let i = 1; i <= 4; i++) {
+                const icon = socials[`social${i}Icon`];
+                const link = socials[`social${i}Link`];
+                
+                if (icon && link) {
+                    socialHTML += `
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="Red Social ${i}">
+                            <img src="${icon}" alt="Red Social ${i}" class="social-icon">
+                        </a>
+                    `;
+                }
+            }
+            
+            socialContainer.innerHTML = socialHTML;
+        }
+        
+        function updateBanners() {
+            const banners = JSON.parse(localStorage.getItem('podcast_banners') || '{"top":"","left":"","right":"","bottom":""}');
+            
+            // Banner superior - SIEMPRE visible
+            let topBanner = document.getElementById('topBanner');
+            if (!topBanner) {
+                topBanner = document.createElement('div');
+                topBanner.id = 'topBanner';
+                topBanner.className = 'ad-banner ad-banner-top';
+                document.body.insertBefore(topBanner, document.body.firstChild);
+            }
+            if (banners.top) {
+                topBanner.innerHTML = banners.topLink 
+                    ? `<a href="${banners.topLink}" target="_blank" rel="noopener"><img src="${banners.top}" alt="Publicidad"></a>`
+                    : `<img src="${banners.top}" alt="Publicidad">`;
+                topBanner.classList.remove('empty');
+            } else {
+                topBanner.innerHTML = '';
+                topBanner.classList.add('empty');
+            }
+            
+            // Banner izquierdo - SIEMPRE visible
+            let leftBanner = document.getElementById('leftBanner');
+            if (!leftBanner) {
+                leftBanner = document.createElement('div');
+                leftBanner.id = 'leftBanner';
+                leftBanner.className = 'ad-banner ad-banner-left';
+                document.body.appendChild(leftBanner);
+            }
+            if (banners.left) {
+                leftBanner.innerHTML = banners.leftLink 
+                    ? `<a href="${banners.leftLink}" target="_blank" rel="noopener"><img src="${banners.left}" alt="Publicidad"></a>`
+                    : `<img src="${banners.left}" alt="Publicidad">`;
+                leftBanner.classList.remove('empty');
+            } else {
+                leftBanner.innerHTML = '';
+                leftBanner.classList.add('empty');
+            }
+            
+            // Banner derecho - SIEMPRE visible
+            let rightBanner = document.getElementById('rightBanner');
+            if (!rightBanner) {
+                rightBanner = document.createElement('div');
+                rightBanner.id = 'rightBanner';
+                rightBanner.className = 'ad-banner ad-banner-right';
+                document.body.appendChild(rightBanner);
+            }
+            if (banners.right) {
+                rightBanner.innerHTML = banners.rightLink 
+                    ? `<a href="${banners.rightLink}" target="_blank" rel="noopener"><img src="${banners.right}" alt="Publicidad"></a>`
+                    : `<img src="${banners.right}" alt="Publicidad">`;
+                rightBanner.classList.remove('empty');
+            } else {
+                rightBanner.innerHTML = '';
+                rightBanner.classList.add('empty');
+            }
+            
+            // Banner inferior - SIEMPRE visible
+            let bottomBanner = document.getElementById('bottomBanner');
+            if (!bottomBanner) {
+                bottomBanner = document.createElement('div');
+                bottomBanner.id = 'bottomBanner';
+                bottomBanner.className = 'ad-banner ad-banner-bottom';
+                document.body.appendChild(bottomBanner);
+            }
+            if (banners.bottom) {
+                bottomBanner.innerHTML = banners.bottomLink 
+                    ? `<a href="${banners.bottomLink}" target="_blank" rel="noopener"><img src="${banners.bottom}" alt="Publicidad"></a>`
+                    : `<img src="${banners.bottom}" alt="Publicidad">`;
+                bottomBanner.classList.remove('empty');
+            } else {
+                bottomBanner.innerHTML = '';
+                bottomBanner.classList.add('empty');
+            }
+        }
+
+        // Funciones de Analíticas
+        let currentFilter = 'all';
+        
+        function filterAnalytics(period) {
+            currentFilter = period;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('[id^="filter"]').forEach(btn => {
+                btn.classList.remove('btn');
+                btn.classList.add('btn-secondary');
+            });
+            document.getElementById(`filter${period === '24h' ? '24h' : period === '7d' ? '7d' : period === '30d' ? '30d' : 'All'}`).classList.remove('btn-secondary');
+            document.getElementById(`filter${period === '24h' ? '24h' : period === '7d' ? '7d' : period === '30d' ? '30d' : 'All'}`).classList.add('btn');
+            
+            updateAnalyticsDashboard();
+        }
+        
+        function updateAnalyticsDashboard() {
+            const analytics = app.analytics;
+            const now = Date.now();
+            let timeFilter;
+            
+            switch(currentFilter) {
+                case '24h':
+                    timeFilter = now - (24 * 60 * 60 * 1000);
+                    break;
+                case '7d':
+                    timeFilter = now - (7 * 24 * 60 * 60 * 1000);
+                    break;
+                case '30d':
+                    timeFilter = now - (30 * 24 * 60 * 60 * 1000);
+                    break;
+                default:
+                    timeFilter = 0;
+            }
+            
+            // Filtrar datos por período
+            const visits = analytics.visits.filter(v => v.timestamp >= timeFilter);
+            const plays = analytics.plays.filter(p => p.timestamp >= timeFilter);
+            const downloads = analytics.downloads.filter(d => d.timestamp >= timeFilter);
+            const bannerClicks = analytics.bannerClicks.filter(b => b.timestamp >= timeFilter);
+            const socialClicks = analytics.socialClicks.filter(s => s.timestamp >= timeFilter);
+            const sessions = analytics.sessions.filter(s => s.timestamp >= timeFilter);
+            
+            // Actualizar métricas principales
+            document.getElementById('statVisits').textContent = visits.length;
+            document.getElementById('statPlays').textContent = plays.length;
+            document.getElementById('statDownloads').textContent = downloads.length;
+            document.getElementById('statBannerClicks').textContent = bannerClicks.length;
+            document.getElementById('statSocialClicks').textContent = socialClicks.length;
+            
+            // Calcular tiempo medio
+            const avgTime = sessions.length > 0 
+                ? Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length / 60000)
+                : 0;
+            document.getElementById('statAvgTime').textContent = `${avgTime}m`;
+            
+            // Top 5 Episodios
+            const episodeStats = {};
+            plays.forEach(play => {
+                if (!episodeStats[play.episodeId]) {
+                    episodeStats[play.episodeId] = {
+                        title: play.episodeTitle,
+                        plays: 0
+                    };
+                }
+                episodeStats[play.episodeId].plays++;
+            });
+            
+            const topEpisodes = Object.values(episodeStats)
+                .sort((a, b) => b.plays - a.plays)
+                .slice(0, 5);
+            
+            const topEpisodesHTML = topEpisodes.length > 0
+                ? topEpisodes.map((ep, i) => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${i + 1}. ${ep.title}</span>
+                        <span style="font-weight: bold; color: var(--accent); margin-left: 0.5rem;">${ep.plays}</span>
+                    </div>
+                `).join('')
+                : '<p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>';
+            
+            document.getElementById('topEpisodes').innerHTML = topEpisodesHTML;
+            
+            // Top Ubicaciones
+            const locationStats = {};
+            visits.forEach(visit => {
+                const loc = visit.location;
+                locationStats[loc] = (locationStats[loc] || 0) + 1;
+            });
+            
+            const topLocations = Object.entries(locationStats)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const topLocationsHTML = topLocations.length > 0
+                ? topLocations.map(([loc, count]) => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${loc}</span>
+                        <span style="font-weight: bold; color: var(--accent); margin-left: 0.5rem;">${count}</span>
+                    </div>
+                `).join('')
+                : '<p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>';
+            
+            document.getElementById('topLocations').innerHTML = topLocationsHTML;
+            
+            // Dispositivos
+            const deviceStats = {};
+            visits.forEach(visit => {
+                const device = visit.device;
+                deviceStats[device] = (deviceStats[device] || 0) + 1;
+            });
+            
+            const deviceStatsHTML = Object.entries(deviceStats).length > 0
+                ? Object.entries(deviceStats)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([device, count]) => `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px;">
+                            <span style="flex: 1;">${device}</span>
+                            <span style="font-weight: bold; color: var(--accent); margin-left: 0.5rem;">${count}</span>
+                        </div>
+                    `).join('')
+                : '<p style="color: var(--text-muted); font-style: italic;">Sin datos aún</p>';
+            
+            document.getElementById('deviceStats').innerHTML = deviceStatsHTML;
+        }
+        
+        function exportAnalytics() {
+            const analytics = app.analytics;
+            const dataStr = JSON.stringify(analytics, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `podcast-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            app.showNotification('📥 Analíticas exportadas correctamente');
+        }
+        
+        function resetAnalytics() {
+            if (confirm('¿Estás seguro de que quieres resetear todas las analíticas? Esta acción no se puede deshacer.')) {
+                app.analytics = {
+                    visits: [],
+                    plays: [],
+                    downloads: [],
+                    bannerClicks: [],
+                    socialClicks: [],
+                    sessions: [],
+                    episodeStats: {},
+                    locations: {},
+                    devices: {}
+                };
+                app.saveAnalytics();
+                updateAnalyticsDashboard();
+                app.showNotification('🗑️ Analíticas reseteadas correctamente');
+            }
+        }
+        
+        // Añadir tracking a los clics de banners
+        document.addEventListener('click', function(e) {
+            const bannerLink = e.target.closest('.ad-banner a');
+            if (bannerLink) {
+                const banner = bannerLink.closest('.ad-banner');
+                let position = 'unknown';
+                if (banner.classList.contains('ad-banner-top')) position = 'top';
+                else if (banner.classList.contains('ad-banner-left')) position = 'left';
+                else if (banner.classList.contains('ad-banner-right')) position = 'right';
+                else if (banner.classList.contains('ad-banner-bottom')) position = 'bottom';
+                
+                app.trackBannerClick(position);
+            }
+            
+            // Tracking de clics en redes sociales
+            const socialLink = e.target.closest('.social-link');
+            if (socialLink) {
+                const href = socialLink.getAttribute('href');
+                let network = 'unknown';
+                if (href.includes('facebook')) network = 'Facebook';
+                else if (href.includes('twitter') || href.includes('x.com')) network = 'Twitter/X';
+                else if (href.includes('instagram')) network = 'Instagram';
+                else if (href.includes('youtube')) network = 'YouTube';
+                else if (href.includes('tiktok')) network = 'TikTok';
+                else if (href.includes('linkedin')) network = 'LinkedIn';
+                
+                app.trackSocialClick(network);
+            }
+        });
+
+        console.log('🎧 Podcast Player loaded successfully!');
+    </script>
+</body>
+</html>
+<!-- Version: 2.1 - Textos actualizados -->
