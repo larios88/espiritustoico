@@ -2219,13 +2219,44 @@ npx http-server<br><br>
             
             app.showNotification('⏳ Preparando descarga...');
             
-            // Usar proxy para evitar problemas de CORS y descargar directamente
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(episode.audioUrl)}`;
+            // Limpiar URL que puede estar múltiplemente codificada
+            let cleanAudioUrl = episode.audioUrl;
             
-            // Crear enlace de descarga directa
+            console.log('🔗 URL original:', cleanAudioUrl);
+            
+            // Detectar y limpiar URLs mal formateadas de Anchor
+            // Ejemplo: https://anchor.fm/s/10361fcfc/podcast/play/110729688/https%253A%252F%252Fd3ctxlq1ktw2nl.cloudfront.net...
+            if (cleanAudioUrl.includes('/podcast/play/') && cleanAudioUrl.includes('https%')) {
+                // Extraer la parte después del ID del episodio
+                const parts = cleanAudioUrl.split('/podcast/play/');
+                if (parts.length > 1) {
+                    const afterId = parts[1].split('/')[1]; // Obtener la parte después del ID
+                    if (afterId && afterId.includes('https%')) {
+                        // Decodificar múltiples veces si es necesario
+                        let decoded = afterId;
+                        while (decoded.includes('%')) {
+                            const temp = decodeURIComponent(decoded);
+                            if (temp === decoded) break; // Ya no hay más que decodificar
+                            decoded = temp;
+                        }
+                        cleanAudioUrl = decoded;
+                    }
+                }
+            }
+            
+            // Asegurar que empiece con https://
+            if (!cleanAudioUrl.startsWith('http')) {
+                cleanAudioUrl = 'https://' + cleanAudioUrl;
+            }
+            
+            console.log('🔗 URL limpia:', cleanAudioUrl);
+            
+            // Crear enlace de descarga directa (SIN proxy)
             const link = document.createElement('a');
-            link.href = proxyUrl;
+            link.href = cleanAudioUrl;
             link.download = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
             link.style.display = 'none';
             
             // Añadir al DOM, hacer clic y eliminar
@@ -2233,12 +2264,13 @@ npx http-server<br><br>
             link.click();
             
             setTimeout(() => {
-                document.body.removeChild(link);
+                if (document.body.contains(link)) {
+                    document.body.removeChild(link);
+                }
             }, 100);
             
             app.trackDownload(episode.id, episode.title);
             app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
-        }
 
         function showAdminLogin() {
             const modal = document.createElement('div');
