@@ -1465,11 +1465,11 @@ npx http-server<br><br>
             async tryLoadRealData() {
                 this.showNotification(this.t('notifications.loading_rss'));
                 
-                // Cambiar orden: AllOrigins primero (más confiable), luego RSS2JSON, luego directo
+                // Intentar primero directo, luego RSS2JSON, AllOrigins como último recurso
                 const methods = [
-                    { name: 'AllOrigins', fn: () => this.loadViaAllOrigins() },
                     { name: 'Directo', fn: () => this.loadDirectly() },
-                    { name: 'RSS2JSON', fn: () => this.loadViaRSS2JSON() }
+                    { name: 'RSS2JSON', fn: () => this.loadViaRSS2JSON() },
+                    { name: 'AllOrigins', fn: () => this.loadViaAllOrigins() }
                 ];
 
                 for (const method of methods) {
@@ -1672,6 +1672,21 @@ npx http-server<br><br>
                 const paginationContainer = document.getElementById('pagination');
                 if (!container) return;
 
+                // Si no hay episodios, mostrar botón para cargar RSS
+                if (this.filteredEpisodes.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <h2>📡 No hay episodios disponibles</h2>
+                            <p style="margin: 1rem 0;">No se pudieron cargar los episodios del RSS.</p>
+                            <button class="btn" onclick="app.tryLoadRealData()" style="margin-top: 1rem;">
+                                🔄 Intentar cargar RSS nuevamente
+                            </button>
+                        </div>
+                    `;
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
                 const startIndex = this.currentPage * this.episodesPerPage;
                 const endIndex = startIndex + this.episodesPerPage;
                 const currentEpisodes = this.filteredEpisodes.slice(startIndex, endIndex);
@@ -1698,15 +1713,13 @@ npx http-server<br><br>
             }
 
             generateEpisodeCard(episode) {
-                const statusIcon = this.dataLoaded ? '🎧' : '📝';
-                
                 return `
                     <div class="episode-card" onclick="selectEpisode('${episode.id}')">
                         <div class="episode-header">
                             <img class="episode-artwork" src="${episode.artwork}" alt="${episode.title}" 
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMmEyYTJhIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOWY4MDY5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn46nPC90ZXh0Pgo8L3N2Zz4K'">
                             <div class="episode-info">
-                                <div class="episode-title">${statusIcon} ${episode.title}</div>
+                                <div class="episode-title">🎧 ${episode.title}</div>
                                 <div class="episode-meta">
                                     <span>${this.formatDate(episode.publishDate)}</span>
                                     <span>${this.formatTime(episode.duration)}</span>
@@ -1941,12 +1954,6 @@ npx http-server<br><br>
                                     <span>${app.formatDate(episode.publishDate)}</span>
                                     <span>${app.formatTime(episode.duration)}</span>
                                     <span>${episode.playCount} reproducciones</span>
-                                </div>
-                                <div style="margin-top: 0.5rem;">
-                                    ${isReal 
-                                        ? '<span style="background: var(--success); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">✅ Episodio Real</span>'
-                                        : '<span style="background: var(--error); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">📝 Episodio de Ejemplo</span>'
-                                    }
                                 </div>
                                 <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
                                     ⏱️ Tiempo actual: <span id="currentTimeDisplay">${app.formatTime(episode.currentTime || 0)}</span>
