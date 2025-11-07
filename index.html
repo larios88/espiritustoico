@@ -2303,18 +2303,15 @@ npx http-server<br><br>
             console.log('🔗 URL original:', cleanAudioUrl);
             
             // Detectar y limpiar URLs mal formateadas de Anchor
-            // Ejemplo: https://anchor.fm/s/10361fcfc/podcast/play/110729688/https%253A%252F%252Fd3ctxlq1ktw2nl.cloudfront.net...
             if (cleanAudioUrl.includes('/podcast/play/') && cleanAudioUrl.includes('https%')) {
-                // Extraer la parte después del ID del episodio
                 const parts = cleanAudioUrl.split('/podcast/play/');
                 if (parts.length > 1) {
-                    const afterId = parts[1].split('/')[1]; // Obtener la parte después del ID
+                    const afterId = parts[1].split('/')[1];
                     if (afterId && afterId.includes('https%')) {
-                        // Decodificar múltiples veces si es necesario
                         let decoded = afterId;
                         while (decoded.includes('%')) {
                             const temp = decodeURIComponent(decoded);
-                            if (temp === decoded) break; // Ya no hay más que decodificar
+                            if (temp === decoded) break;
                             decoded = temp;
                         }
                         cleanAudioUrl = decoded;
@@ -2329,26 +2326,61 @@ npx http-server<br><br>
             
             console.log('🔗 URL limpia:', cleanAudioUrl);
             
-            // Crear enlace de descarga directa (SIN proxy)
-            const link = document.createElement('a');
-            link.href = cleanAudioUrl;
-            link.download = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.style.display = 'none';
+            const fileName = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
             
-            // Añadir al DOM, hacer clic y eliminar
-            document.body.appendChild(link);
-            link.click();
-            
-            setTimeout(() => {
-                if (document.body.contains(link)) {
-                    document.body.removeChild(link);
+            try {
+                // Método 1: Intentar descarga directa con fetch y blob
+                app.showNotification('📥 Descargando archivo...');
+                
+                const response = await fetch(cleanAudioUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            }, 100);
-            
-            app.trackDownload(episode.id, episode.title);
-            app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                // Limpiar
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+                
+                app.trackDownload(episode.id, episode.title);
+                app.showNotification(`✅ Descarga completada: ${episode.title}`);
+                
+            } catch (error) {
+                console.log('❌ Descarga con fetch falló, usando método alternativo:', error);
+                
+                // Método 2: Descarga directa simple (abre en nueva pestaña si falla)
+                const link = document.createElement('a');
+                link.href = cleanAudioUrl;
+                link.download = fileName;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                setTimeout(() => {
+                    if (document.body.contains(link)) {
+                        document.body.removeChild(link);
+                    }
+                }, 100);
+                
+                app.trackDownload(episode.id, episode.title);
+                app.showNotification(`✅ Descarga iniciada: ${episode.title}\n💡 Si se abre en nueva pestaña, usa clic derecho > Guardar como`);
+            }
         }
 
         function showAdminLogin() {
