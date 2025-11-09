@@ -877,16 +877,20 @@
         
         /* Estilos para Redes Sociales en Header */
         .social-links-container {
-            display: flex;
+            display: flex !important;
             gap: 0.75rem;
             align-items: center;
             margin-left: 1rem;
+            flex-shrink: 0;
         }
         
         .social-link {
-            display: inline-block;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.2s ease, opacity 0.2s ease;
             text-decoration: none;
+            flex-shrink: 0;
         }
         
         .social-link:hover {
@@ -901,10 +905,12 @@
             object-fit: cover;
             border: 1px solid var(--border);
             background: var(--bg-tertiary);
+            display: block;
         }
         
         @media (max-width: 768px) {
             .social-links-container {
+                display: flex !important;
                 gap: 0.5rem;
                 margin-left: 0.5rem;
             }
@@ -3066,6 +3072,8 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 1
                             </label>
+                            <input type="text" id="social1Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social1IconFile" accept="image/*" onchange="handleSocialIconUpload(1, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
@@ -3082,6 +3090,8 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 2
                             </label>
+                            <input type="text" id="social2Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social2IconFile" accept="image/*" onchange="handleSocialIconUpload(2, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
@@ -3098,6 +3108,8 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 3
                             </label>
+                            <input type="text" id="social3Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social3IconFile" accept="image/*" onchange="handleSocialIconUpload(3, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
@@ -3114,6 +3126,8 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 4
                             </label>
+                            <input type="text" id="social4Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                                   style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social4IconFile" accept="image/*" onchange="handleSocialIconUpload(4, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
@@ -3323,12 +3337,16 @@ npx http-server<br><br>
         
         function saveSocialLinks() {
             const socials = {
+                social1Name: document.getElementById('social1Name').value.trim(),
                 social1Icon: document.getElementById('social1Icon').value.trim(),
                 social1Link: document.getElementById('social1Link').value.trim(),
+                social2Name: document.getElementById('social2Name').value.trim(),
                 social2Icon: document.getElementById('social2Icon').value.trim(),
                 social2Link: document.getElementById('social2Link').value.trim(),
+                social3Name: document.getElementById('social3Name').value.trim(),
                 social3Icon: document.getElementById('social3Icon').value.trim(),
                 social3Link: document.getElementById('social3Link').value.trim(),
+                social4Name: document.getElementById('social4Name').value.trim(),
                 social4Icon: document.getElementById('social4Icon').value.trim(),
                 social4Link: document.getElementById('social4Link').value.trim()
             };
@@ -3369,13 +3387,14 @@ npx http-server<br><br>
             let socialHTML = '';
             
             for (let i = 1; i <= 4; i++) {
+                const name = socials[`social${i}Name`] || `Red Social ${i}`;
                 const icon = socials[`social${i}Icon`];
                 const link = socials[`social${i}Link`];
                 
                 if (icon && link) {
                     socialHTML += `
-                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="Red Social ${i}">
-                            <img src="${icon}" alt="Red Social ${i}" class="social-icon">
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
+                            <img src="${icon}" alt="${name}" class="social-icon">
                         </a>
                     `;
                 }
