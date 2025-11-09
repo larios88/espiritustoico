@@ -600,11 +600,23 @@
             .content {
                 margin-left: 0;
                 margin-right: 0;
-                margin-top: 60px;
-                max-height: calc(100vh - 160px);
-                padding: 1rem;
+                margin-top: 120px; /* Header (100px) + Sidebar (60px) + Banner superior (60px) = 220px, pero banner es fixed */
+                padding: 0 1rem 70px 1rem; /* Padding bottom para banner inferior (60px + 10px) */
                 width: 100%;
                 box-sizing: border-box;
+                max-height: calc(100vh - 220px); /* Header + Sidebar + Banner superior */
+                overflow-y: auto;
+            }
+            
+            /* Buscador visible en móvil */
+            .search-container {
+                margin-bottom: 1rem;
+                margin-top: 0;
+            }
+            
+            .search-input {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
             }
             
             /* Episodios más compactos en móvil */
@@ -885,12 +897,28 @@
                 display: none !important;
             }
             
+            /* Banner superior: entre sidebar y contenido */
             .ad-banner-top {
+                position: fixed;
+                top: 160px; /* Header (100px) + Sidebar (60px) */
+                left: 0;
+                width: 100%;
                 min-height: 60px;
+                z-index: 48;
+                background: var(--bg-primary);
+                border-bottom: 1px solid var(--border);
             }
             
+            /* Banner inferior: abajo del todo */
             .ad-banner-bottom {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
                 min-height: 60px;
+                z-index: 48;
+                background: var(--bg-primary);
+                border-top: 1px solid var(--border);
             }
             
             .ad-banner-top img,
