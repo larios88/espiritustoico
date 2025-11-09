@@ -2179,17 +2179,8 @@ npx http-server<br><br>
                             <button class="btn btn-secondary" onclick="event.stopPropagation(); addBookmark('${episode.id}')">
                                 ${this.t('episode.bookmark')}
                             </button>
-                            ${isDownloaded ? `
-                                <button class="btn btn-secondary" onclick="event.stopPropagation(); app.playOffline('${episode.id}')" style="background: var(--success);">
-                                    ✅ Guardado
-                                </button>
-                            ` : `
-                                <button class="btn btn-secondary" onclick="event.stopPropagation(); app.downloadForOffline('${episode.id}')">
-                                    📥 Guardar
-                                </button>
-                            `}
                             <button class="btn btn-secondary" onclick="event.stopPropagation(); downloadEpisode('${episode.id}')">
-                                ⬇️
+                                📥 Guardar
                             </button>
                         </div>
                     </div>
@@ -2792,10 +2783,13 @@ npx http-server<br><br>
             const fileName = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
             
             try {
-                // Método 1: Intentar descarga directa con fetch y blob
+                // Intentar descarga directa con fetch y blob
                 app.showNotification('📥 Descargando archivo...');
                 
-                const response = await fetch(cleanAudioUrl);
+                const response = await fetch(cleanAudioUrl, {
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -2822,14 +2816,12 @@ npx http-server<br><br>
                 app.showNotification(`✅ Descarga completada: ${episode.title}`);
                 
             } catch (error) {
-                console.log('❌ Descarga con fetch falló, usando método alternativo:', error);
+                console.log('❌ Descarga con fetch falló:', error);
                 
-                // Método 2: Descarga directa simple (abre en nueva pestaña si falla)
+                // Método alternativo: usar link directo sin target="_blank"
                 const link = document.createElement('a');
                 link.href = cleanAudioUrl;
                 link.download = fileName;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
                 link.style.display = 'none';
                 
                 document.body.appendChild(link);
@@ -2842,7 +2834,7 @@ npx http-server<br><br>
                 }, 100);
                 
                 app.trackDownload(episode.id, episode.title);
-                app.showNotification(`✅ Descarga iniciada: ${episode.title}\n💡 Si se abre en nueva pestaña, usa clic derecho > Guardar como`);
+                app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
             }
         }
 
