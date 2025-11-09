@@ -2793,8 +2793,9 @@ npx http-server<br><br>
                 }
                 
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
                 
+                // 1. Descargar el archivo al dispositivo
+                const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = fileName;
@@ -2809,8 +2810,28 @@ npx http-server<br><br>
                     window.URL.revokeObjectURL(url);
                 }, 100);
                 
+                // 2. Guardar en IndexedDB para reproducción offline
+                await app.saveAudioToIndexedDB(episodeId, blob);
+                
+                // 3. Guardar metadata en localStorage
+                if (!app.downloads.find(d => d.id === episodeId)) {
+                    app.downloads.push({
+                        id: episodeId,
+                        title: episode.title,
+                        duration: episode.duration,
+                        artwork: episode.artwork,
+                        downloadDate: new Date().toISOString(),
+                        size: blob.size
+                    });
+                    localStorage.setItem('podcast_downloads', JSON.stringify(app.downloads));
+                }
+                
                 app.trackDownload(episode.id, episode.title);
-                app.showNotification(`✅ Descarga completada: ${episode.title}`);
+                app.showNotification(`✅ Descarga completada y guardada para offline: ${episode.title}`);
+                
+                // Actualizar UI
+                app.updateDownloadsUI();
+                app.updateEpisodeList();
                 
             } catch (error) {
                 console.log('❌ Descarga con fetch falló, usando iframe:', error);
@@ -2842,7 +2863,7 @@ npx http-server<br><br>
                     }, 2000);
                     
                     app.trackDownload(episode.id, episode.title);
-                    app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
+                    app.showNotification(`✅ Descarga iniciada: ${episode.title}\n⚠️ No se pudo guardar para offline`);
                     
                 } catch (iframeError) {
                     console.log('❌ Descarga con iframe falló:', iframeError);
