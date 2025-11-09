@@ -2816,25 +2816,53 @@ npx http-server<br><br>
                 app.showNotification(`✅ Descarga completada: ${episode.title}`);
                 
             } catch (error) {
-                console.log('❌ Descarga con fetch falló:', error);
+                console.log('❌ Descarga con fetch falló, usando iframe:', error);
                 
-                // Método alternativo: usar link directo sin target="_blank"
-                const link = document.createElement('a');
-                link.href = cleanAudioUrl;
-                link.download = fileName;
-                link.style.display = 'none';
-                
-                document.body.appendChild(link);
-                link.click();
-                
-                setTimeout(() => {
-                    if (document.body.contains(link)) {
-                        document.body.removeChild(link);
-                    }
-                }, 100);
-                
-                app.trackDownload(episode.id, episode.title);
-                app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
+                // Método alternativo: usar iframe oculto para evitar navegación
+                try {
+                    // Crear iframe oculto
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.style.position = 'fixed';
+                    iframe.style.width = '1px';
+                    iframe.style.height = '1px';
+                    iframe.style.top = '-100px';
+                    iframe.style.left = '-100px';
+                    
+                    document.body.appendChild(iframe);
+                    
+                    // Crear link dentro del iframe
+                    const iframeDoc = iframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(`
+                        <html>
+                        <body>
+                            <a id="downloadLink" href="${cleanAudioUrl}" download="${fileName}">Download</a>
+                            <script>
+                                document.getElementById('downloadLink').click();
+                            </script>
+                        </body>
+                        </html>
+                    `);
+                    iframeDoc.close();
+                    
+                    // Limpiar iframe después de un tiempo
+                    setTimeout(() => {
+                        if (document.body.contains(iframe)) {
+                            document.body.removeChild(iframe);
+                        }
+                    }, 2000);
+                    
+                    app.trackDownload(episode.id, episode.title);
+                    app.showNotification(`✅ Descarga iniciada: ${episode.title}`);
+                    
+                } catch (iframeError) {
+                    console.log('❌ Descarga con iframe falló:', iframeError);
+                    
+                    // Último recurso: abrir en nueva pestaña
+                    window.open(cleanAudioUrl, '_blank');
+                    app.showNotification(`💡 Se abrió en nueva pestaña. Usa clic derecho > Guardar como`);
+                }
             }
         }
 
