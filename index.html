@@ -1400,11 +1400,22 @@ npx http-server<br><br>
                         cleanAudioUrl = 'https://' + cleanAudioUrl;
                     }
 
-                    // Descargar audio
-                    const response = await fetch(cleanAudioUrl);
-                    if (!response.ok) throw new Error('Error al descargar');
+                    let blob;
                     
-                    const blob = await response.blob();
+                    // Intentar descarga directa primero
+                    try {
+                        const response = await fetch(cleanAudioUrl);
+                        if (!response.ok) throw new Error('Error al descargar');
+                        blob = await response.blob();
+                    } catch (corsError) {
+                        console.log('⚠️ CORS bloqueado, usando proxy...');
+                        
+                        // Usar proxy CORS
+                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(cleanAudioUrl);
+                        const response = await fetch(proxyUrl);
+                        if (!response.ok) throw new Error('Error al descargar con proxy');
+                        blob = await response.blob();
+                    }
                     
                     // Guardar en IndexedDB
                     await this.saveAudioToIndexedDB(episodeId, blob);
@@ -1426,7 +1437,7 @@ npx http-server<br><br>
                     
                 } catch (error) {
                     console.error('Error al descargar:', error);
-                    this.showNotification('❌ Error al descargar episodio', 'error');
+                    this.showNotification('❌ Error al descargar episodio. Intenta de nuevo.', 'error');
                 }
             }
 
