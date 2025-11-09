@@ -3376,10 +3376,12 @@ npx http-server<br><br>
         
         function updateSocialLinks() {
             const socials = JSON.parse(localStorage.getItem('podcast_socials') || '{}');
+            console.log('📱 Actualizando redes sociales:', socials);
             
             // Buscar o crear el contenedor de redes sociales
             let socialContainer = document.getElementById('socialLinksContainer');
             if (!socialContainer) {
+                console.log('⚠️ Contenedor no encontrado, creando...');
                 socialContainer = document.createElement('div');
                 socialContainer.id = 'socialLinksContainer';
                 socialContainer.className = 'social-links-container';
@@ -3388,11 +3390,15 @@ npx http-server<br><br>
                 const headerControls = document.querySelector('.header-controls');
                 if (headerControls) {
                     headerControls.appendChild(socialContainer);
+                    console.log('✅ Contenedor añadido al header-controls');
+                } else {
+                    console.log('❌ No se encontró header-controls');
                 }
             }
             
             // Construir HTML de redes sociales
             let socialHTML = '';
+            let count = 0;
             
             for (let i = 1; i <= 4; i++) {
                 const name = socials[`social${i}Name`] || `Red Social ${i}`;
@@ -3400,6 +3406,7 @@ npx http-server<br><br>
                 const link = socials[`social${i}Link`];
                 
                 if (icon && link) {
+                    count++;
                     socialHTML += `
                         <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
                             <img src="${icon}" alt="${name}" class="social-icon">
@@ -3408,7 +3415,15 @@ npx http-server<br><br>
                 }
             }
             
+            console.log(`📊 Redes sociales encontradas: ${count}`);
             socialContainer.innerHTML = socialHTML;
+            
+            if (count > 0) {
+                socialContainer.style.display = 'flex';
+                console.log('✅ Redes sociales mostradas');
+            } else {
+                console.log('⚠️ No hay redes sociales configuradas');
+            }
         }
         
         function updateBanners() {
