@@ -591,15 +591,22 @@
             .nav-item {
                 white-space: nowrap;
                 margin-bottom: 0;
-                padding: 0.5rem 0.75rem;
-                font-size: 0.75rem;
+                padding: 0.6rem;
+                font-size: 0;
                 flex-shrink: 0;
                 justify-content: center;
-                min-width: fit-content;
+                min-width: auto;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+            }
+            
+            .nav-item span:not(.nav-icon) {
+                display: none; /* Ocultar texto, solo iconos */
             }
             
             .nav-icon {
-                font-size: 1rem;
+                font-size: 1.3rem;
             }
             
             /* Buscador: debajo del sidebar */
@@ -931,15 +938,19 @@
             
             /* Banner inferior: abajo del todo */
             .ad-banner-bottom {
-                position: fixed;
-                bottom: 0;
+                position: fixed !important;
+                bottom: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
-                min-height: 60px;
-                z-index: 48;
-                background: var(--bg-primary);
-                border-top: 1px solid var(--border);
+                min-height: 60px !important;
+                height: 60px;
+                z-index: 100 !important;
+                background: var(--bg-primary) !important;
+                border-top: 2px solid var(--border) !important;
                 margin: 0 !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
             }
             
             .ad-banner-top img,
