@@ -566,7 +566,7 @@
                 left: 0;
                 width: 100%; 
                 height: 60px;
-                padding: 0.5rem 0;
+                padding: 0.5rem 1rem;
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-start;
@@ -577,6 +577,7 @@
                 z-index: 49;
                 border-right: none;
                 border-bottom: 1px solid var(--border);
+                box-sizing: border-box;
                 /* Ocultar scrollbar pero mantener funcionalidad */
                 scrollbar-width: none; /* Firefox */
                 -ms-overflow-style: none; /* IE/Edge */
@@ -1420,6 +1421,7 @@ npx http-server<br><br>
             }
 
             updateThemeButton() {
+                // Actualizar botón en configuración
                 const btn = document.getElementById('themeToggleBtn');
                 if (btn) {
                     const span = btn.querySelector('span');
@@ -1427,6 +1429,22 @@ npx http-server<br><br>
                         span.textContent = '🌞 ' + this.t('settings.theme.switch');
                     } else {
                         span.textContent = '🌙 ' + this.t('settings.theme.switch.night');
+                    }
+                }
+                
+                // Actualizar botón en navegación
+                const themeIcon = document.getElementById('theme-icon');
+                const themeText = document.getElementById('theme-text');
+                
+                if (themeIcon && themeText) {
+                    if (this.currentTheme === 'dark') {
+                        // Modo oscuro activo → Mostrar opción para cambiar a día
+                        themeIcon.textContent = '🌞';
+                        themeText.textContent = 'Modo Día';
+                    } else {
+                        // Modo claro activo → Mostrar opción para cambiar a noche
+                        themeIcon.textContent = '🌙';
+                        themeText.textContent = 'Modo Noche';
                     }
                 }
             }
