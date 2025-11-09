@@ -517,13 +517,13 @@
         @media (max-width: 768px) {
             .header {
                 padding: 0.5rem 0.75rem;
-                min-height: 70px; /* Reducido de 100px a 70px (30% menos) */
+                min-height: 90px; /* Aumentado para dar espacio a las redes sociales */
             }
             
             .header-content {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 0.25rem;
+                gap: 0.5rem;
             }
             
             .podcast-header {
@@ -553,8 +553,10 @@
             .header-controls {
                 display: flex !important;
                 justify-content: center;
-                margin-top: 0.25rem;
+                align-items: center;
+                margin-top: 0;
                 gap: 0.5rem;
+                flex-wrap: nowrap;
             }
             
             .header-btn {
@@ -565,7 +567,7 @@
             /* Sidebar: navegación horizontal */
             .sidebar { 
                 position: fixed;
-                top: 70px; /* Header reducido a 70px */
+                top: 90px; /* Ajustado al nuevo tamaño del header */
                 left: 0;
                 width: 100%; 
                 height: 50px;
@@ -614,7 +616,7 @@
             /* Buscador: debajo del sidebar */
             .search-container {
                 position: fixed;
-                top: 120px; /* Header (70px) + Sidebar (50px) */
+                top: 140px; /* Header (90px) + Sidebar (50px) */
                 left: 0;
                 width: 100%;
                 padding: 0.5rem 1rem;
@@ -635,11 +637,11 @@
             .content {
                 margin-left: 0;
                 margin-right: 0;
-                margin-top: 240px; /* Header (70px) + Sidebar (50px) + Buscador (60px) + Banner (60px) */
+                margin-top: 260px; /* Header (90px) + Sidebar (50px) + Buscador (60px) + Banner (60px) */
                 padding: 0 1rem 70px 1rem; /* Padding bottom para banner inferior */
                 width: 100%;
                 box-sizing: border-box;
-                max-height: calc(100vh - 310px);
+                max-height: calc(100vh - 330px);
                 overflow-y: auto;
             }
                 font-size: 0.9rem;
