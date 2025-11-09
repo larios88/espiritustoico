@@ -2834,7 +2834,7 @@ npx http-server<br><br>
                     // Crear link dentro del iframe
                     const iframeDoc = iframe.contentWindow.document;
                     iframeDoc.open();
-                    iframeDoc.write('<html><body><a id="downloadLink" href="' + cleanAudioUrl + '" download="' + fileName + '">Download</a><script>document.getElementById("downloadLink").click();</script></body></html>');
+                    iframeDoc.write('<html><body><a id="downloadLink" href="' + cleanAudioUrl + '" download="' + fileName + '">Download</a><script>document.getElementById("downloadLink").click();<\/script></body></html>');
                     iframeDoc.close();
                     
                     // Limpiar iframe después de un tiempo
