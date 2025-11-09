@@ -2780,98 +2780,79 @@ npx http-server<br><br>
             const fileName = `${episode.title.replace(/[^a-z0-9\s]/gi, '_').trim()}.mp3`;
             
             try {
-                // Intentar descarga directa con fetch y blob
+                // Intentar descarga con fetch sin CORS (modo no-cors)
                 app.showNotification('📥 Descargando archivo...');
                 
                 const response = await fetch(cleanAudioUrl, {
-                    mode: 'cors',
-                    credentials: 'omit'
+                    mode: 'no-cors'
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 
                 const blob = await response.blob();
                 
-                // 1. Descargar el archivo al dispositivo
-                const url = window.URL.createObjectURL(blob);
+                // Si el blob tiene tamaño, intentar guardar
+                if (blob.size > 0) {
+                    // 1. Descargar el archivo al dispositivo
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName;
+                    link.style.display = 'none';
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    // Limpiar
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                    
+                    // 2. Guardar en IndexedDB para reproducción offline
+                    await app.saveAudioToIndexedDB(episodeId, blob);
+                    
+                    // 3. Guardar metadata en localStorage
+                    if (!app.downloads.find(d => d.id === episodeId)) {
+                        app.downloads.push({
+                            id: episodeId,
+                            title: episode.title,
+                            duration: episode.duration,
+                            artwork: episode.artwork,
+                            downloadDate: new Date().toISOString(),
+                            size: blob.size
+                        });
+                        localStorage.setItem('podcast_downloads', JSON.stringify(app.downloads));
+                    }
+                    
+                    app.trackDownload(episode.id, episode.title);
+                    app.showNotification(`✅ Descarga completada y guardada para offline: ${episode.title}`);
+                    
+                    // Actualizar UI
+                    app.updateDownloadsUI();
+                    app.updateEpisodeList();
+                } else {
+                    throw new Error('Blob vacío');
+                }
+                
+            } catch (error) {
+                console.log('❌ Descarga con fetch falló, usando método directo:', error);
+                
+                // Método alternativo: descarga directa simple
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = cleanAudioUrl;
                 link.download = fileName;
                 link.style.display = 'none';
                 
                 document.body.appendChild(link);
                 link.click();
                 
-                // Limpiar
                 setTimeout(() => {
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
+                    if (document.body.contains(link)) {
+                        document.body.removeChild(link);
+                    }
                 }, 100);
                 
-                // 2. Guardar en IndexedDB para reproducción offline
-                await app.saveAudioToIndexedDB(episodeId, blob);
-                
-                // 3. Guardar metadata en localStorage
-                if (!app.downloads.find(d => d.id === episodeId)) {
-                    app.downloads.push({
-                        id: episodeId,
-                        title: episode.title,
-                        duration: episode.duration,
-                        artwork: episode.artwork,
-                        downloadDate: new Date().toISOString(),
-                        size: blob.size
-                    });
-                    localStorage.setItem('podcast_downloads', JSON.stringify(app.downloads));
-                }
-                
                 app.trackDownload(episode.id, episode.title);
-                app.showNotification(`✅ Descarga completada y guardada para offline: ${episode.title}`);
-                
-                // Actualizar UI
-                app.updateDownloadsUI();
-                app.updateEpisodeList();
-                
-            } catch (error) {
-                console.log('❌ Descarga con fetch falló, usando iframe:', error);
-                
-                // Método alternativo: usar iframe oculto para evitar navegación
-                try {
-                    // Crear iframe oculto
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.style.position = 'fixed';
-                    iframe.style.width = '1px';
-                    iframe.style.height = '1px';
-                    iframe.style.top = '-100px';
-                    iframe.style.left = '-100px';
-                    
-                    document.body.appendChild(iframe);
-                    
-                    // Crear link dentro del iframe
-                    const iframeDoc = iframe.contentWindow.document;
-                    iframeDoc.open();
-                    iframeDoc.write('<html><body><a id="downloadLink" href="' + cleanAudioUrl + '" download="' + fileName + '">Download</a><script>document.getElementById("downloadLink").click();<\/script></body></html>');
-                    iframeDoc.close();
-                    
-                    // Limpiar iframe después de un tiempo
-                    setTimeout(() => {
-                        if (document.body.contains(iframe)) {
-                            document.body.removeChild(iframe);
-                        }
-                    }, 2000);
-                    
-                    app.trackDownload(episode.id, episode.title);
-                    app.showNotification(`✅ Descarga iniciada: ${episode.title}\n⚠️ No se pudo guardar para offline`);
-                    
-                } catch (iframeError) {
-                    console.log('❌ Descarga con iframe falló:', iframeError);
-                    
-                    // Último recurso: abrir en nueva pestaña
-                    window.open(cleanAudioUrl, '_blank');
-                    app.showNotification(`💡 Se abrió en nueva pestaña. Usa clic derecho > Guardar como`);
-                }
+                app.showNotification(`✅ Descarga iniciada: ${episode.title}\n⚠️ No se pudo guardar para reproducción offline`);
             }
         }
 
