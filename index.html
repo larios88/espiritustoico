@@ -560,20 +560,21 @@
                 font-size: 1rem;
             }
             
+            /* Sidebar: navegación horizontal */
             .sidebar { 
                 position: fixed;
                 top: 100px;
                 left: 0;
                 width: 100%; 
-                height: 60px;
-                padding: 0.5rem 1rem;
+                height: 50px;
+                padding: 0.5rem 0.5rem;
                 display: flex;
                 flex-direction: row;
-                justify-content: flex-start;
+                justify-content: center; /* Centrar botones */
                 align-items: center;
                 overflow-x: auto;
                 overflow-y: hidden;
-                gap: 0.5rem;
+                gap: 0.4rem;
                 z-index: 49;
                 border-right: none;
                 border-bottom: 1px solid var(--border);
@@ -590,34 +591,48 @@
             .nav-item {
                 white-space: nowrap;
                 margin-bottom: 0;
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
                 flex-shrink: 0;
                 justify-content: center;
                 min-width: fit-content;
             }
             
-            .content {
-                margin-left: 0;
-                margin-right: 0;
-                margin-top: 120px; /* Header (100px) + Sidebar (60px) + Banner superior (60px) = 220px, pero banner es fixed */
-                padding: 0 1rem 70px 1rem; /* Padding bottom para banner inferior (60px + 10px) */
-                width: 100%;
-                box-sizing: border-box;
-                max-height: calc(100vh - 220px); /* Header + Sidebar + Banner superior */
-                overflow-y: auto;
+            .nav-icon {
+                font-size: 1rem;
             }
             
-            /* Buscador visible en móvil */
+            /* Buscador: debajo del sidebar */
             .search-container {
-                margin-bottom: 1rem;
-                margin-top: 0;
+                position: fixed;
+                top: 150px; /* Header (100px) + Sidebar (50px) */
+                left: 0;
                 width: 100%;
+                padding: 0.5rem 1rem;
+                background: var(--bg-primary);
+                z-index: 48;
                 box-sizing: border-box;
+                border-bottom: 1px solid var(--border);
             }
             
             .search-input {
-                padding: 0.75rem 1rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            /* Contenido: debajo del buscador y banner superior */
+            .content {
+                margin-left: 0;
+                margin-right: 0;
+                margin-top: 270px; /* Header (100px) + Sidebar (50px) + Buscador (60px) + Banner (60px) */
+                padding: 0 1rem 70px 1rem; /* Padding bottom para banner inferior */
+                width: 100%;
+                box-sizing: border-box;
+                max-height: calc(100vh - 340px);
+                overflow-y: auto;
+            }
                 font-size: 0.9rem;
                 width: 100%;
                 box-sizing: border-box;
@@ -901,14 +916,14 @@
                 display: none !important;
             }
             
-            /* Banner superior: entre sidebar y contenido */
+            /* Banner superior: entre buscador y contenido */
             .ad-banner-top {
                 position: fixed;
-                top: 160px; /* Header (100px) + Sidebar (60px) */
+                top: 210px; /* Header (100px) + Sidebar (50px) + Buscador (60px) */
                 left: 0 !important;
                 width: 100% !important;
                 min-height: 60px;
-                z-index: 48;
+                z-index: 47;
                 background: var(--bg-primary);
                 border-bottom: 1px solid var(--border);
                 margin: 0 !important;
