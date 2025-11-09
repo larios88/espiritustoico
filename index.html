@@ -1066,8 +1066,25 @@
                 <!-- Podcast info will be loaded here -->
             </div>
             <div class="header-controls">
-                <!-- Redes sociales - siempre visibles -->
-                <div id="socialLinksContainer" class="social-links-container"></div>
+                <!-- Redes sociales - siempre visibles para todos los usuarios -->
+                <!-- Edita directamente aquí tus redes sociales -->
+                <div id="socialLinksContainer" class="social-links-container">
+                    <!-- Ejemplo: Descomentar y editar las que necesites -->
+                    <!-- 
+                    <a href="https://facebook.com/tupagina" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook">
+                        <img src="URL_DE_TU_ICONO_FACEBOOK" alt="Facebook" class="social-icon">
+                    </a>
+                    <a href="https://twitter.com/tuusuario" target="_blank" rel="noopener noreferrer" class="social-link" title="Twitter">
+                        <img src="URL_DE_TU_ICONO_TWITTER" alt="Twitter" class="social-icon">
+                    </a>
+                    <a href="https://instagram.com/tuusuario" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+                        <img src="URL_DE_TU_ICONO_INSTAGRAM" alt="Instagram" class="social-icon">
+                    </a>
+                    <a href="https://youtube.com/tucanal" target="_blank" rel="noopener noreferrer" class="social-link" title="YouTube">
+                        <img src="URL_DE_TU_ICONO_YOUTUBE" alt="YouTube" class="social-icon">
+                    </a>
+                    -->
+                </div>
                 <!-- Botón admin - solo visible cuando está habilitado -->
                 <div style="display: none;" id="adminControls">
                     <button class="header-btn" onclick="showAdminLogin()" title="Panel de administrador">🔐</button>
@@ -3378,52 +3395,55 @@ npx http-server<br><br>
         
         function updateSocialLinks() {
             const socials = JSON.parse(localStorage.getItem('podcast_socials') || '{}');
-            console.log('📱 Actualizando redes sociales:', socials);
             
-            // Buscar o crear el contenedor de redes sociales
+            // Buscar el contenedor de redes sociales
             let socialContainer = document.getElementById('socialLinksContainer');
             if (!socialContainer) {
-                console.log('⚠️ Contenedor no encontrado, creando...');
-                socialContainer = document.createElement('div');
-                socialContainer.id = 'socialLinksContainer';
-                socialContainer.className = 'social-links-container';
-                
-                // Añadir al header-controls
-                const headerControls = document.querySelector('.header-controls');
-                if (headerControls) {
-                    headerControls.appendChild(socialContainer);
-                    console.log('✅ Contenedor añadido al header-controls');
-                } else {
-                    console.log('❌ No se encontró header-controls');
-                }
+                console.log('❌ No se encontró el contenedor de redes sociales');
+                return;
             }
             
-            // Construir HTML de redes sociales
-            let socialHTML = '';
-            let count = 0;
-            
+            // Verificar si hay redes sociales configuradas en localStorage (desde admin)
+            let hasLocalStorageSocials = false;
             for (let i = 1; i <= 4; i++) {
-                const name = socials[`social${i}Name`] || `Red Social ${i}`;
-                const icon = socials[`social${i}Icon`];
-                const link = socials[`social${i}Link`];
-                
-                if (icon && link) {
-                    count++;
-                    socialHTML += `
-                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
-                            <img src="${icon}" alt="${name}" class="social-icon">
-                        </a>
-                    `;
+                if (socials[`social${i}Icon`] && socials[`social${i}Link`]) {
+                    hasLocalStorageSocials = true;
+                    break;
                 }
             }
             
-            console.log(`📊 Redes sociales encontradas: ${count}`);
-            socialContainer.innerHTML = socialHTML;
-            
-            if (count > 0) {
-                socialContainer.style.display = 'flex';
-                console.log('✅ Redes sociales mostradas');
+            // Si hay redes sociales en localStorage, sobrescribir las del HTML
+            if (hasLocalStorageSocials) {
+                console.log('📱 Usando redes sociales del administrador');
+                let socialHTML = '';
+                
+                for (let i = 1; i <= 4; i++) {
+                    const name = socials[`social${i}Name`] || `Red Social ${i}`;
+                    const icon = socials[`social${i}Icon`];
+                    const link = socials[`social${i}Link`];
+                    
+                    if (icon && link) {
+                        socialHTML += `
+                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
+                                <img src="${icon}" alt="${name}" class="social-icon">
+                            </a>
+                        `;
+                    }
+                }
+                
+                socialContainer.innerHTML = socialHTML;
             } else {
+                console.log('📱 Usando redes sociales hardcodeadas en HTML');
+                // Si no hay en localStorage, mantener las que están en el HTML
+                // No hacer nada, dejar el HTML como está
+            }
+            
+            // Asegurar que el contenedor sea visible si tiene contenido
+            if (socialContainer.children.length > 0) {
+                socialContainer.style.display = 'flex';
+                console.log(`✅ ${socialContainer.children.length} redes sociales mostradas`);
+            } else {
+                socialContainer.style.display = 'none';
                 console.log('⚠️ No hay redes sociales configuradas');
             }
         }
