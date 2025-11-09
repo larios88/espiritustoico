@@ -516,14 +516,14 @@
         /* Móviles */
         @media (max-width: 768px) {
             .header {
-                padding: 0.75rem 1rem;
-                min-height: 100px;
+                padding: 0.5rem 0.75rem;
+                min-height: 70px; /* Reducido de 100px a 70px (30% menos) */
             }
             
             .header-content {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 0.5rem;
+                gap: 0.25rem;
             }
             
             .podcast-header {
@@ -532,38 +532,38 @@
                 text-align: left;
                 min-height: auto;
                 min-width: auto;
-                gap: 1rem;
+                gap: 0.75rem;
             }
             
             .podcast-artwork {
-                width: clamp(45px, 12vw, 60px);
-                height: clamp(45px, 12vw, 60px);
+                width: clamp(40px, 10vw, 50px);
+                height: clamp(40px, 10vw, 50px);
             }
             
             .podcast-details h1 {
-                font-size: clamp(0.9rem, 5vw, 1.1rem);
+                font-size: clamp(0.85rem, 4.5vw, 1rem);
                 margin-bottom: 0.1rem;
             }
             
             .podcast-description {
-                font-size: clamp(0.7rem, 3.5vw, 0.8rem);
+                font-size: clamp(0.65rem, 3vw, 0.75rem);
                 -webkit-line-clamp: 1;
             }
             
             .header-controls {
                 justify-content: center;
-                margin-top: 0.5rem;
+                margin-top: 0.25rem;
             }
             
             .header-btn {
-                padding: 0.6rem;
-                font-size: 1rem;
+                padding: 0.4rem;
+                font-size: 0.9rem;
             }
             
             /* Sidebar: navegación horizontal */
             .sidebar { 
                 position: fixed;
-                top: 100px;
+                top: 70px; /* Header reducido a 70px */
                 left: 0;
                 width: 100%; 
                 height: 50px;
@@ -605,7 +605,7 @@
             /* Buscador: debajo del sidebar */
             .search-container {
                 position: fixed;
-                top: 150px; /* Header (100px) + Sidebar (50px) */
+                top: 120px; /* Header (70px) + Sidebar (50px) */
                 left: 0;
                 width: 100%;
                 padding: 0.5rem 1rem;
@@ -626,11 +626,11 @@
             .content {
                 margin-left: 0;
                 margin-right: 0;
-                margin-top: 270px; /* Header (100px) + Sidebar (50px) + Buscador (60px) + Banner (60px) */
+                margin-top: 240px; /* Header (70px) + Sidebar (50px) + Buscador (60px) + Banner (60px) */
                 padding: 0 1rem 70px 1rem; /* Padding bottom para banner inferior */
                 width: 100%;
                 box-sizing: border-box;
-                max-height: calc(100vh - 340px);
+                max-height: calc(100vh - 310px);
                 overflow-y: auto;
             }
                 font-size: 0.9rem;
@@ -919,7 +919,7 @@
             /* Banner superior: entre buscador y contenido */
             .ad-banner-top {
                 position: fixed;
-                top: 210px; /* Header (100px) + Sidebar (50px) + Buscador (60px) */
+                top: 180px; /* Header (70px) + Sidebar (50px) + Buscador (60px) */
                 left: 0 !important;
                 width: 100% !important;
                 min-height: 60px;
