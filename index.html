@@ -3099,16 +3099,16 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 1
                             </label>
-                            <input type="text" id="social1Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                            <input type="text" id="social1Name" value="" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social1IconFile" accept="image/*" onchange="handleSocialIconUpload(1, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
-                                <img id="social1IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon || ''}" 
-                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon ? '' : 'display: none;'}">
+                                <img id="social1IconPreview" src="" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; display: none;">
                             </div>
-                            <input type="hidden" id="social1Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Icon || ''}">
-                            <input type="url" id="social1Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social1Link || ''}" placeholder="URL de destino (ej: https://facebook.com/tupagina)"
+                            <input type="hidden" id="social1Icon" value="">
+                            <input type="url" id="social1Link" value="" placeholder="URL de destino (ej: https://facebook.com/tupagina)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
                         </div>
                         
@@ -3117,16 +3117,16 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 2
                             </label>
-                            <input type="text" id="social2Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                            <input type="text" id="social2Name" value="" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social2IconFile" accept="image/*" onchange="handleSocialIconUpload(2, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
-                                <img id="social2IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon || ''}" 
-                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon ? '' : 'display: none;'}">
+                                <img id="social2IconPreview" src="" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; display: none;">
                             </div>
-                            <input type="hidden" id="social2Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Icon || ''}">
-                            <input type="url" id="social2Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social2Link || ''}" placeholder="URL de destino (ej: https://twitter.com/tuusuario)"
+                            <input type="hidden" id="social2Icon" value="">
+                            <input type="url" id="social2Link" value="" placeholder="URL de destino (ej: https://twitter.com/tuusuario)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
                         </div>
                         
@@ -3135,16 +3135,16 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 3
                             </label>
-                            <input type="text" id="social3Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                            <input type="text" id="social3Name" value="" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social3IconFile" accept="image/*" onchange="handleSocialIconUpload(3, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
-                                <img id="social3IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon || ''}" 
-                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon ? '' : 'display: none;'}">
+                                <img id="social3IconPreview" src="" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; display: none;">
                             </div>
-                            <input type="hidden" id="social3Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Icon || ''}">
-                            <input type="url" id="social3Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social3Link || ''}" placeholder="URL de destino (ej: https://instagram.com/tuusuario)"
+                            <input type="hidden" id="social3Icon" value="">
+                            <input type="url" id="social3Link" value="" placeholder="URL de destino (ej: https://instagram.com/tuusuario)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
                         </div>
                         
@@ -3153,16 +3153,16 @@ npx http-server<br><br>
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: bold;">
                                 🔗 Red Social 4
                             </label>
-                            <input type="text" id="social4Name" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Name || ''}" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
+                            <input type="text" id="social4Name" value="" placeholder="Nombre (ej: Facebook, Twitter, etc.)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.5rem;">
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
                                 <input type="file" id="social4IconFile" accept="image/*" onchange="handleSocialIconUpload(4, this)" 
                                        style="flex: 1; padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.85rem;">
-                                <img id="social4IconPreview" src="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon || ''}" 
-                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; ${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon ? '' : 'display: none;'}">
+                                <img id="social4IconPreview" src="" 
+                                     style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; display: none;">
                             </div>
-                            <input type="hidden" id="social4Icon" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Icon || ''}">
-                            <input type="url" id="social4Link" value="${JSON.parse(localStorage.getItem('podcast_socials') || '{}').social4Link || ''}" placeholder="URL de destino (ej: https://youtube.com/tucanal)"
+                            <input type="hidden" id="social4Icon" value="">
+                            <input type="url" id="social4Link" value="" placeholder="URL de destino (ej: https://youtube.com/tucanal)"
                                    style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary);">
                         </div>
                         
@@ -3233,8 +3233,39 @@ npx http-server<br><br>
             
             document.body.appendChild(modal);
             
+            // Cargar valores actuales de redes sociales desde el JSON
+            loadSocialLinksConfig();
+            
             // Actualizar dashboard de analíticas
             setTimeout(() => updateAnalyticsDashboard(), 100);
+        }
+        
+        async function loadSocialLinksConfig() {
+            try {
+                const response = await fetch('socials-config.json?t=' + Date.now());
+                const config = await response.json();
+                
+                // Cargar valores en los campos del formulario
+                for (let i = 1; i <= 4; i++) {
+                    const social = config[`social${i}`];
+                    if (social) {
+                        document.getElementById(`social${i}Name`).value = social.name || '';
+                        document.getElementById(`social${i}Icon`).value = social.icon || '';
+                        document.getElementById(`social${i}Link`).value = social.link || '';
+                        
+                        // Mostrar preview del icono si existe
+                        const preview = document.getElementById(`social${i}IconPreview`);
+                        if (social.icon) {
+                            preview.src = social.icon;
+                            preview.style.display = 'block';
+                        }
+                    }
+                }
+                
+                console.log('✅ Configuración de redes sociales cargada en el formulario');
+            } catch (error) {
+                console.error('❌ Error al cargar configuración de redes sociales:', error);
+            }
         }
         
         function saveRssUrl() {
@@ -3363,24 +3394,42 @@ npx http-server<br><br>
         }
         
         function saveSocialLinks() {
-            const socials = {
-                social1Name: document.getElementById('social1Name').value.trim(),
-                social1Icon: document.getElementById('social1Icon').value.trim(),
-                social1Link: document.getElementById('social1Link').value.trim(),
-                social2Name: document.getElementById('social2Name').value.trim(),
-                social2Icon: document.getElementById('social2Icon').value.trim(),
-                social2Link: document.getElementById('social2Link').value.trim(),
-                social3Name: document.getElementById('social3Name').value.trim(),
-                social3Icon: document.getElementById('social3Icon').value.trim(),
-                social3Link: document.getElementById('social3Link').value.trim(),
-                social4Name: document.getElementById('social4Name').value.trim(),
-                social4Icon: document.getElementById('social4Icon').value.trim(),
-                social4Link: document.getElementById('social4Link').value.trim()
+            const config = {
+                social1: {
+                    name: document.getElementById('social1Name').value.trim(),
+                    icon: document.getElementById('social1Icon').value.trim(),
+                    link: document.getElementById('social1Link').value.trim()
+                },
+                social2: {
+                    name: document.getElementById('social2Name').value.trim(),
+                    icon: document.getElementById('social2Icon').value.trim(),
+                    link: document.getElementById('social2Link').value.trim()
+                },
+                social3: {
+                    name: document.getElementById('social3Name').value.trim(),
+                    icon: document.getElementById('social3Icon').value.trim(),
+                    link: document.getElementById('social3Link').value.trim()
+                },
+                social4: {
+                    name: document.getElementById('social4Name').value.trim(),
+                    icon: document.getElementById('social4Icon').value.trim(),
+                    link: document.getElementById('social4Link').value.trim()
+                }
             };
             
-            localStorage.setItem('podcast_socials', JSON.stringify(socials));
-            app.showNotification('✅ Redes sociales guardadas correctamente');
-            updateSocialLinks();
+            // Crear archivo JSON para descargar
+            const jsonString = JSON.stringify(config, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'socials-config.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            
+            app.showNotification('📥 Archivo descargado. Súbelo a tu repositorio para aplicar los cambios a todos los usuarios.');
         }
         
         function clearSocialLinks() {
@@ -3393,58 +3442,50 @@ npx http-server<br><br>
             }
         }
         
-        function updateSocialLinks() {
-            const socials = JSON.parse(localStorage.getItem('podcast_socials') || '{}');
-            
-            // Buscar el contenedor de redes sociales
+        async function updateSocialLinks() {
             let socialContainer = document.getElementById('socialLinksContainer');
             if (!socialContainer) {
                 console.log('❌ No se encontró el contenedor de redes sociales');
                 return;
             }
             
-            // Verificar si hay redes sociales configuradas en localStorage (desde admin)
-            let hasLocalStorageSocials = false;
-            for (let i = 1; i <= 4; i++) {
-                if (socials[`social${i}Icon`] && socials[`social${i}Link`]) {
-                    hasLocalStorageSocials = true;
-                    break;
-                }
-            }
-            
-            // Si hay redes sociales en localStorage, sobrescribir las del HTML
-            if (hasLocalStorageSocials) {
-                console.log('📱 Usando redes sociales del administrador');
-                let socialHTML = '';
+            try {
+                // Cargar configuración desde el archivo JSON (visible para todos)
+                const response = await fetch('socials-config.json?t=' + Date.now());
+                const config = await response.json();
                 
+                console.log('📱 Cargando redes sociales desde archivo:', config);
+                
+                let socialHTML = '';
+                let count = 0;
+                
+                // Construir HTML desde el archivo de configuración
                 for (let i = 1; i <= 4; i++) {
-                    const name = socials[`social${i}Name`] || `Red Social ${i}`;
-                    const icon = socials[`social${i}Icon`];
-                    const link = socials[`social${i}Link`];
-                    
-                    if (icon && link) {
+                    const social = config[`social${i}`];
+                    if (social && social.icon && social.link) {
+                        count++;
+                        const name = social.name || `Red Social ${i}`;
                         socialHTML += `
-                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
-                                <img src="${icon}" alt="${name}" class="social-icon">
+                            <a href="${social.link}" target="_blank" rel="noopener noreferrer" class="social-link" title="${name}">
+                                <img src="${social.icon}" alt="${name}" class="social-icon">
                             </a>
                         `;
                     }
                 }
                 
-                socialContainer.innerHTML = socialHTML;
-            } else {
-                console.log('📱 Usando redes sociales hardcodeadas en HTML');
-                // Si no hay en localStorage, mantener las que están en el HTML
-                // No hacer nada, dejar el HTML como está
-            }
-            
-            // Asegurar que el contenedor sea visible si tiene contenido
-            if (socialContainer.children.length > 0) {
-                socialContainer.style.display = 'flex';
-                console.log(`✅ ${socialContainer.children.length} redes sociales mostradas`);
-            } else {
-                socialContainer.style.display = 'none';
-                console.log('⚠️ No hay redes sociales configuradas');
+                if (count > 0) {
+                    socialContainer.innerHTML = socialHTML;
+                    socialContainer.style.display = 'flex';
+                    console.log(`✅ ${count} redes sociales cargadas`);
+                } else {
+                    socialContainer.innerHTML = '';
+                    socialContainer.style.display = 'none';
+                    console.log('⚠️ No hay redes sociales configuradas');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error al cargar redes sociales:', error);
+                // Si falla, mantener el HTML por defecto
             }
         }
         
