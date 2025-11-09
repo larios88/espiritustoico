@@ -1074,6 +1074,10 @@
                 <span class="nav-icon">🔖</span>
                 <span id="nav-bookmarks">Marcadores</span>
             </div>
+            <div class="nav-item" onclick="showSection('downloads')" data-section="downloads">
+                <span class="nav-icon">📥</span>
+                <span id="nav-downloads">Descargas</span>
+            </div>
             <div class="nav-item" onclick="toggleTheme()" id="theme-toggle-nav">
                 <span class="nav-icon" id="theme-icon">🌞</span>
                 <span id="theme-text">Modo Día</span>
@@ -1112,6 +1116,17 @@
                     <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
                         <h2 data-i18n="bookmarks.title">🔖 Marcadores</h2>
                         <p data-i18n="bookmarks.empty">No tienes marcadores guardados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOWNLOADS SECTION -->
+            <div id="downloads" class="section">
+                <div id="downloadsContent">
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <h2>📥 Descargas Offline</h2>
+                        <p><span id="downloadCount">0</span>/10 episodios guardados</p>
+                        <p style="font-size: 0.9rem; margin-top: 1rem;">Descarga episodios para escuchar sin conexión</p>
                     </div>
                 </div>
             </div>
@@ -1238,6 +1253,11 @@ npx http-server<br><br>
                 this.bookmarks = JSON.parse(localStorage.getItem('podcast_bookmarks') || '[]');
                 // Limpiar marcadores con IDs antiguos (formato: real-* o xml-*)
                 this.cleanOldBookmarks();
+                // Sistema de descargas offline
+                this.downloads = JSON.parse(localStorage.getItem('podcast_downloads') || '[]');
+                this.maxDownloads = 10;
+                this.db = null;
+                this.initIndexedDB();
                 this.isAdmin = false;
                 this.currentPage = 0;
                 this.episodesPerPage = 5;
@@ -1275,6 +1295,287 @@ npx http-server<br><br>
                             this.showNotification(`Se eliminaron ${oldBookmarks.length} marcadores antiguos incompatibles. Por favor, crea nuevos marcadores.`, 'error');
                         }, 2000);
                     }
+                }
+            }
+
+            // Sistema de IndexedDB para descargas offline
+            initIndexedDB() {
+                const request = indexedDB.open('PodcastOfflineDB', 1);
+                
+                request.onerror = () => {
+                    console.error('❌ Error al abrir IndexedDB');
+                };
+                
+                request.onsuccess = (event) => {
+                    this.db = event.target.result;
+                    console.log('✅ IndexedDB inicializado');
+                    this.updateDownloadsUI();
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('audioFiles')) {
+                        db.createObjectStore('audioFiles', { keyPath: 'id' });
+                        console.log('📦 ObjectStore "audioFiles" creado');
+                    }
+                };
+            }
+
+            async saveAudioToIndexedDB(episodeId, audioBlob) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['audioFiles'], 'readwrite');
+                    const store = transaction.objectStore('audioFiles');
+                    const request = store.put({ id: episodeId, audio: audioBlob });
+                    
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getAudioFromIndexedDB(episodeId) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['audioFiles'], 'readonly');
+                    const store = transaction.objectStore('audioFiles');
+                    const request = store.get(episodeId);
+                    
+                    request.onsuccess = () => resolve(request.result?.audio);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async deleteAudioFromIndexedDB(episodeId) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['audioFiles'], 'readwrite');
+                    const store = transaction.objectStore('audioFiles');
+                    const request = store.delete(episodeId);
+                    
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            canDownload() {
+                return this.downloads.length < this.maxDownloads;
+            }
+
+            isDownloaded(episodeId) {
+                return this.downloads.some(d => d.id === episodeId);
+            }
+
+            async downloadForOffline(episodeId) {
+                const episode = this.episodes.find(e => e.id === episodeId);
+                if (!episode) return;
+
+                if (!this.canDownload()) {
+                    this.showNotification(`❌ Límite alcanzado (${this.maxDownloads}/${this.maxDownloads}). Elimina una descarga primero.`, 'error');
+                    return;
+                }
+
+                if (this.isDownloaded(episodeId)) {
+                    this.showNotification('Este episodio ya está descargado', 'error');
+                    return;
+                }
+
+                try {
+                    this.showNotification('⏳ Descargando episodio...');
+
+                    // Limpiar URL
+                    let cleanAudioUrl = episode.audioUrl;
+                    if (cleanAudioUrl.includes('/podcast/play/') && cleanAudioUrl.includes('https%')) {
+                        const parts = cleanAudioUrl.split('/podcast/play/');
+                        if (parts.length > 1) {
+                            const afterId = parts[1].split('/')[1];
+                            if (afterId && afterId.includes('https%')) {
+                                let decoded = afterId;
+                                while (decoded.includes('%')) {
+                                    const temp = decodeURIComponent(decoded);
+                                    if (temp === decoded) break;
+                                    decoded = temp;
+                                }
+                                cleanAudioUrl = decoded;
+                            }
+                        }
+                    }
+                    if (!cleanAudioUrl.startsWith('http')) {
+                        cleanAudioUrl = 'https://' + cleanAudioUrl;
+                    }
+
+                    // Descargar audio
+                    const response = await fetch(cleanAudioUrl);
+                    if (!response.ok) throw new Error('Error al descargar');
+                    
+                    const blob = await response.blob();
+                    
+                    // Guardar en IndexedDB
+                    await this.saveAudioToIndexedDB(episodeId, blob);
+                    
+                    // Guardar metadata en localStorage
+                    this.downloads.push({
+                        id: episodeId,
+                        title: episode.title,
+                        duration: episode.duration,
+                        artwork: episode.artwork,
+                        downloadDate: new Date().toISOString(),
+                        size: blob.size
+                    });
+                    localStorage.setItem('podcast_downloads', JSON.stringify(this.downloads));
+                    
+                    this.showNotification(`✅ Episodio guardado para offline`);
+                    this.updateDownloadsUI();
+                    this.updateEpisodeList(); // Actualizar iconos
+                    
+                } catch (error) {
+                    console.error('Error al descargar:', error);
+                    this.showNotification('❌ Error al descargar episodio', 'error');
+                }
+            }
+
+            async deleteDownload(episodeId) {
+                try {
+                    // Eliminar de IndexedDB
+                    await this.deleteAudioFromIndexedDB(episodeId);
+                    
+                    // Eliminar de localStorage
+                    this.downloads = this.downloads.filter(d => d.id !== episodeId);
+                    localStorage.setItem('podcast_downloads', JSON.stringify(this.downloads));
+                    
+                    this.showNotification('🗑️ Descarga eliminada');
+                    this.updateDownloadsUI();
+                    this.updateEpisodeList(); // Actualizar iconos
+                    
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
+                    this.showNotification('❌ Error al eliminar descarga', 'error');
+                }
+            }
+
+            async deleteAllDownloads() {
+                if (!confirm('¿Eliminar todas las descargas?')) return;
+                
+                try {
+                    // Eliminar todos de IndexedDB
+                    for (const download of this.downloads) {
+                        await this.deleteAudioFromIndexedDB(download.id);
+                    }
+                    
+                    // Limpiar localStorage
+                    this.downloads = [];
+                    localStorage.setItem('podcast_downloads', JSON.stringify(this.downloads));
+                    
+                    this.showNotification('🗑️ Todas las descargas eliminadas');
+                    this.updateDownloadsUI();
+                    this.updateEpisodeList();
+                    
+                } catch (error) {
+                    console.error('Error al eliminar todas:', error);
+                    this.showNotification('❌ Error al eliminar descargas', 'error');
+                }
+            }
+
+            async playOffline(episodeId) {
+                try {
+                    const audioBlob = await this.getAudioFromIndexedDB(episodeId);
+                    if (!audioBlob) {
+                        this.showNotification('❌ Audio no encontrado', 'error');
+                        return;
+                    }
+
+                    const download = this.downloads.find(d => d.id === episodeId);
+                    if (!download) return;
+
+                    // Crear episodio temporal con blob URL
+                    const blobUrl = URL.createObjectURL(audioBlob);
+                    const episode = {
+                        id: episodeId,
+                        title: download.title,
+                        audioUrl: blobUrl,
+                        duration: download.duration,
+                        artwork: download.artwork,
+                        description: 'Reproduciendo offline',
+                        playCount: 0,
+                        publishDate: new Date(download.downloadDate),
+                        currentTime: 0
+                    };
+
+                    this.currentEpisode = episode;
+                    this.isPlaying = true;
+                    this.showNotification(`▶️ Reproduciendo offline: ${episode.title}`);
+                    showPlayerContent(episode);
+                    showSection('player');
+
+                    setTimeout(() => {
+                        const audioPlayer = document.getElementById('audioPlayer');
+                        if (audioPlayer) {
+                            audioPlayer.play().catch(err => {
+                                console.log('⚠️ Reproducción automática bloqueada');
+                            });
+                        }
+                    }, 100);
+
+                } catch (error) {
+                    console.error('Error al reproducir offline:', error);
+                    this.showNotification('❌ Error al reproducir', 'error');
+                }
+            }
+
+            updateDownloadsUI() {
+                const container = document.getElementById('downloadsContent');
+                const countSpan = document.getElementById('downloadCount');
+                
+                if (countSpan) {
+                    countSpan.textContent = this.downloads.length;
+                }
+
+                if (!container) return;
+
+                if (this.downloads.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <h2>📥 Descargas Offline</h2>
+                            <p><span id="downloadCount">0</span>/10 episodios guardados</p>
+                            <p style="font-size: 0.9rem; margin-top: 1rem;">Descarga episodios para escuchar sin conexión</p>
+                        </div>
+                    `;
+                } else {
+                    const totalSize = this.downloads.reduce((sum, d) => sum + d.size, 0);
+                    const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+
+                    container.innerHTML = `
+                        <h2>📥 Descargas Offline (<span id="downloadCount">${this.downloads.length}</span>/${this.maxDownloads})</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Espacio usado: ${totalSizeMB} MB</p>
+                        <div class="episode-list">
+                            ${this.downloads.map(download => `
+                                <div class="episode-card">
+                                    <div class="episode-header">
+                                        <img class="episode-artwork" src="${download.artwork}" alt="${download.title}">
+                                        <div class="episode-info">
+                                            <div class="episode-title">🎧 ${download.title}</div>
+                                            <div class="episode-meta">
+                                                <span>${this.formatTime(download.duration)}</span>
+                                                <span>${(download.size / (1024 * 1024)).toFixed(1)} MB</span>
+                                                <span>Guardado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="episode-actions">
+                                        <button class="btn" onclick="app.playOffline('${download.id}')">
+                                            ▶️ Reproducir Offline
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="app.deleteDownload('${download.id}')">
+                                            🗑️ Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${this.downloads.length > 1 ? `
+                            <div style="text-align: center; margin-top: 2rem;">
+                                <button class="btn btn-secondary" onclick="app.deleteAllDownloads()">
+                                    🗑️ Eliminar todas las descargas
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
                 }
             }
 
@@ -1854,13 +2155,15 @@ npx http-server<br><br>
             }
 
             generateEpisodeCard(episode) {
+                const isDownloaded = this.isDownloaded(episode.id);
+                
                 return `
                     <div class="episode-card" onclick="selectEpisode('${episode.id}')">
                         <div class="episode-header">
                             <img class="episode-artwork" src="${episode.artwork}" alt="${episode.title}" 
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMmEyYTJhIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOWY4MDY5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn46nPC90ZXh0Pgo8L3N2Zz4K'">
                             <div class="episode-info">
-                                <div class="episode-title">🎧 ${episode.title}</div>
+                                <div class="episode-title">🎧 ${episode.title} ${isDownloaded ? '✅' : ''}</div>
                                 <div class="episode-meta">
                                     <span>${this.formatDate(episode.publishDate)}</span>
                                     <span>${this.formatTime(episode.duration)}</span>
@@ -1876,8 +2179,17 @@ npx http-server<br><br>
                             <button class="btn btn-secondary" onclick="event.stopPropagation(); addBookmark('${episode.id}')">
                                 ${this.t('episode.bookmark')}
                             </button>
+                            ${isDownloaded ? `
+                                <button class="btn btn-secondary" onclick="event.stopPropagation(); app.playOffline('${episode.id}')" style="background: var(--success);">
+                                    ✅ Guardado
+                                </button>
+                            ` : `
+                                <button class="btn btn-secondary" onclick="event.stopPropagation(); app.downloadForOffline('${episode.id}')">
+                                    📥 Guardar
+                                </button>
+                            `}
                             <button class="btn btn-secondary" onclick="event.stopPropagation(); downloadEpisode('${episode.id}')">
-                                ${this.t('episode.download')}
+                                ⬇️
                             </button>
                         </div>
                     </div>
