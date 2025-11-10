@@ -2211,7 +2211,6 @@ npx http-server<br><br>
                                 <div class="episode-meta">
                                     <span>${this.formatDate(episode.publishDate)}</span>
                                     <span>${this.formatTime(episode.duration)}</span>
-                                    <span>${episode.playCount} reproducciones</span>
                                 </div>
                             </div>
                         </div>
@@ -2481,7 +2480,6 @@ npx http-server<br><br>
                                 <div class="episode-meta" style="font-size: 1rem;">
                                     <span>${app.formatDate(episode.publishDate)}</span>
                                     <span>${app.formatTime(episode.duration)}</span>
-                                    <span>${episode.playCount} reproducciones</span>
                                 </div>
                                 <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
                                     ⏱️ Tiempo actual: <span id="currentTimeDisplay">${app.formatTime(episode.currentTime || 0)}</span>
