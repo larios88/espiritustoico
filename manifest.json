@@ -1,27 +1,20 @@
 {
-  "name": "Podcast Player - Versión Completa",
-  "short_name": "PodcastPlayer",
-  "description": "Reproductor de podcast completo con funcionalidades avanzadas",
-  "start_url": "/",
+  "name": "Espíritu Stoico",
+  "short_name": "Espíritu Stoico",
+  "description": "Reproductor de podcast con marcadores, progreso y descargas offline.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#9f8069",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon",
+      "purpose": "any"
     }
   ],
   "categories": ["entertainment", "music"],

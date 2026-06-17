@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎧 Espíritu Stoico</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#9f8069">
     <style>
         :root {
             /* Modo Noche (por defecto) */
@@ -1538,7 +1540,8 @@ npx http-server<br><br>
                         description: 'Reproduciendo offline',
                         playCount: 0,
                         publishDate: new Date(download.downloadDate),
-                        currentTime: 0
+                        currentTime: 0,
+                        offline: true
                     };
 
                     this.currentEpisode = episode;
@@ -2257,7 +2260,7 @@ npx http-server<br><br>
                                         ${bookmark.timePosition > 0 ? `
                                             <button class="btn" onclick="playFromBookmark('${bookmark.episodeId}', ${bookmark.timePosition})">${this.t('episode.continue')}</button>
                                         ` : `
-                                            <button class="btn" onclick="playEpisode('${bookmark.episodeId})')">${this.t('episode.play')}</button>
+                                            <button class="btn" onclick="playEpisode('${bookmark.episodeId}')">${this.t('episode.play')}</button>
                                         `}
                                         <button class="btn btn-secondary" onclick="removeBookmark(${bookmark.id})">${this.t('episode.delete')}</button>
                                     </div>
@@ -2470,6 +2473,8 @@ npx http-server<br><br>
             const playerContent = document.getElementById('playerContent');
             if (playerContent && episode) {
                 const isReal = app.dataLoaded;
+                const hasPlayableAudio = episode.audioUrl && episode.audioUrl !== '#';
+                const isOfflineAudio = episode.offline === true || (hasPlayableAudio && episode.audioUrl.startsWith('blob:'));
                 
                 playerContent.innerHTML = `
                     <div style="background: var(--bg-secondary); border-radius: 20px; padding: 2rem;">
@@ -2513,7 +2518,7 @@ npx http-server<br><br>
                             <button class="btn btn-secondary" onclick="downloadEpisode('${episode.id}')">${app.t('episode.download')}</button>
                         </div>
                         
-                        ${episode.audioUrl !== '#' && isReal ? `
+                        ${hasPlayableAudio && (isReal || isOfflineAudio) ? `
                             <audio id="audioPlayer" controls style="width: 100%; margin-top: 2rem;" 
                                    ontimeupdate="updateProgress()" 
                                    onloadedmetadata="initializePlayer()"
@@ -2523,8 +2528,10 @@ npx http-server<br><br>
                             </audio>
                         ` : `
                             <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; color: var(--text-muted);">
-                                ${isReal 
+                                ${isReal
                                     ? 'ℹ️ Audio disponible cuando se carguen los datos reales del RSS'
+                                    : isOfflineAudio
+                                        ? 'ℹ️ Audio offline disponible en este dispositivo.'
                                     : 'ℹ️ Este es un episodio de demostración. Configura el acceso RSS para audio real.'
                                 }
                             </div>
@@ -2532,7 +2539,7 @@ npx http-server<br><br>
                     </div>
                 `;
                 
-                if (episode.audioUrl !== '#' && isReal) {
+                if (hasPlayableAudio && (isReal || isOfflineAudio)) {
                     setTimeout(() => {
                         const audioPlayer = document.getElementById('audioPlayer');
                         if (audioPlayer && episode.currentTime > 0) {
@@ -3241,6 +3248,9 @@ npx http-server<br><br>
         async function loadSocialLinksConfig() {
             try {
                 const response = await fetch('socials-config.json?t=' + Date.now());
+                if (!response.ok) {
+                    return;
+                }
                 const config = await response.json();
                 
                 // Cargar valores en los campos del formulario
@@ -3262,7 +3272,7 @@ npx http-server<br><br>
                 
                 console.log('✅ Configuración de redes sociales cargada en el formulario');
             } catch (error) {
-                console.error('❌ Error al cargar configuración de redes sociales:', error);
+                console.warn('No hay configuración de redes sociales para cargar todavía.');
             }
         }
         
@@ -3450,6 +3460,9 @@ npx http-server<br><br>
             try {
                 // Cargar configuración desde el archivo JSON (visible para todos)
                 const response = await fetch('socials-config.json?t=' + Date.now());
+                if (!response.ok) {
+                    throw new Error('socials-config.json no encontrado');
+                }
                 const config = await response.json();
                 
                 console.log('📱 Cargando redes sociales desde archivo:', config);
@@ -3482,8 +3495,9 @@ npx http-server<br><br>
                 }
                 
             } catch (error) {
-                console.error('❌ Error al cargar redes sociales:', error);
-                // Si falla, mantener el HTML por defecto
+                socialContainer.innerHTML = '';
+                socialContainer.style.display = 'none';
+                console.warn('No hay redes sociales configuradas todavía.');
             }
         }
         
@@ -3751,6 +3765,13 @@ npx http-server<br><br>
                 app.trackSocialClick(network);
             }
         });
+
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .catch(error => console.warn('No se pudo registrar el service worker:', error));
+            });
+        }
 
         console.log('🎧 Podcast Player loaded successfully!');
         console.log('📦 Version: 2.2 - Descarga sin AllOrigins');
